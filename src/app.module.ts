@@ -20,13 +20,6 @@ import { UserModule } from './user/user.module';
         stream: pino.multistream([
           {
             level: 'info',
-            stream: pino.transport({
-              target: 'pino-pretty',
-              options: { colorize: true },
-            }),
-          },
-          {
-            level: 'info',
             stream: pino.destination({
               dest: join(process.cwd(), 'logs', 'app.log'),
               mkdir: true,
