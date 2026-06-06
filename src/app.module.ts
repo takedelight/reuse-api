@@ -1,6 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { LoggerModule } from 'nestjs-pino/LoggerModule';
+import { join } from 'path';
+import * as pino from 'pino';
 import { typeormConfig } from './shared/configs/typerorm.config';
 import { UserModule } from './user/user.module';
 
@@ -12,7 +15,27 @@ import { UserModule } from './user/user.module';
       useFactory: (configService: ConfigService) =>
         typeormConfig(configService),
     }),
-
+    LoggerModule.forRoot({
+      pinoHttp: {
+        stream: pino.multistream([
+          {
+            level: 'info',
+            stream: pino.transport({
+              target: 'pino-pretty',
+              options: { colorize: true },
+            }),
+          },
+          {
+            level: 'info',
+            stream: pino.destination({
+              dest: join(process.cwd(), 'logs', 'app.log'),
+              mkdir: true,
+              sync: false,
+            }),
+          },
+        ]),
+      },
+    }),
     UserModule,
   ],
 })
