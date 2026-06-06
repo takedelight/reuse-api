@@ -4,8 +4,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { LoggerModule } from 'nestjs-pino/LoggerModule';
 import { join } from 'path';
 import * as pino from 'pino';
-import { typeormConfig } from './shared/configs/typerorm.config';
-import { UserModule } from './user/user.module';
+import { typeormConfig } from 'src//infrastructure/database/typerorm.config';
+import { UserModule } from 'src/core/user/user.module';
 
 @Module({
   imports: [

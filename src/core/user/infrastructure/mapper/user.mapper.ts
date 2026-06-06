@@ -1,4 +1,4 @@
-import { User } from 'src/user/domain/user.model';
+import { User } from 'src/core/user/domain/user.model';
 import { UserResponseDto } from '../../dto/user-response.dto';
 import { UserEntity } from '../entity/user.entity';
 

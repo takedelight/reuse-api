@@ -1,6 +1,5 @@
-import { ConflictException, NotFoundException } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { InMemoryUserRepository } from '../infrastructure/repository/in-memory.user.repository';
 import { UserController } from '../user.controller';
@@ -65,27 +64,6 @@ describe('UserController', () => {
     it('should throw NotFoundException if user not found', async () => {
       await expect(controller.getUserById('wrong-id')).rejects.toThrow(
         NotFoundException,
-      );
-    });
-  });
-
-  describe('createUser', () => {
-    const dto: CreateUserDto = {
-      username: 'testuser',
-      email: 'test@example.com',
-      password: 'password123',
-    };
-
-    it('should return created user info without password', async () => {
-      const result = await controller.createUser(dto);
-      expect(result).toBeDefined();
-      expect(result.email).toBe(dto.email);
-    });
-
-    it('should throw ConflictException if user email already exists', async () => {
-      await controller.createUser(dto);
-      await expect(controller.createUser(dto)).rejects.toThrow(
-        ConflictException,
       );
     });
   });

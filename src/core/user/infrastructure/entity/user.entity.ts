@@ -1,4 +1,4 @@
-import { type UserRole } from 'src/user/domain/user.model';
+import { type UserRole } from 'src/core/user/domain/user.model';
 import {
   Column,
   CreateDateColumn,
