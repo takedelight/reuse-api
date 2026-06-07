@@ -6,7 +6,10 @@ import {
 } from '@nestjs/common';
 import { hash } from 'argon2';
 import { User } from './domain/user.model';
-import { type IUserRepository } from './domain/user.repository.interface';
+import {
+  USER_REPOSITORY_TOKEN,
+  type IUserRepository,
+} from './domain/user.repository.interface';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserResponseDto } from './dto/user-response.dto';
@@ -15,7 +18,7 @@ import { UserMapper } from './infrastructure/mapper/user.mapper';
 @Injectable()
 export class UserService {
   constructor(
-    @Inject('IUserRepository')
+    @Inject(USER_REPOSITORY_TOKEN)
     private readonly userRepository: IUserRepository,
   ) {}
 
