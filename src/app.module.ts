@@ -10,7 +10,7 @@ import { pinoConfig } from 'src/infrastructure/logger/pino.config';
 import { DataSource } from 'typeorm';
 import { isProd } from './common/utils/env.utils';
 import { AuthModule } from './core/auth/auth.module';
-import { SessionEntity } from './core/auth/infrastructure/session.model';
+import { SessionEntity } from './core/session/infrastructure/entity/session.model';
 
 @Module({
   imports: [
