@@ -3,7 +3,7 @@ import { UserResponseDto } from '../../dto/user-response.dto';
 import { UserEntity } from '../entity/user.entity';
 
 export class UserMapper {
-  static toResponse(user: UserEntity): UserResponseDto {
+  static toResponse(user: User): UserResponseDto {
     return {
       id: user.id,
       username: user.username,
@@ -14,16 +14,28 @@ export class UserMapper {
   }
 
   static toDomain(entity: UserEntity): User {
-    const user = new User();
+    return new User(
+      entity.id,
+      entity.username,
+      entity.email,
+      entity.provider,
+      entity.role,
+      entity.createdAt,
+      entity.avatarUrl,
+      entity.password,
+    );
+  }
 
-    user.id = entity.id;
-    user.username = entity.username;
-    user.email = entity.email;
-    user.avatarUrl = entity.avatarUrl;
-    user.password = entity.password;
-    user.role = entity.role;
-    user.createdAt = entity.createdAt;
-
-    return user;
+  static toPersistence(domain: User): UserEntity {
+    const entity = new UserEntity();
+    entity.id = domain.id;
+    entity.username = domain.username;
+    entity.email = domain.email;
+    entity.provider = domain.provider;
+    entity.role = domain.role;
+    entity.createdAt = domain.createdAt;
+    entity.avatarUrl = domain.avatarUrl;
+    entity.password = domain.password;
+    return entity;
   }
 }

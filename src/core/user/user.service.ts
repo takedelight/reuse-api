@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Inject,
   Injectable,
@@ -48,44 +49,40 @@ export class UserService {
     return UserMapper.toResponse(user);
   }
 
-  async createUser(user: CreateUserDto): Promise<UserResponseDto> {
-    const existingUser = await this.userRepository.getUserByEmail(user.email);
+  async createUser(dto: CreateUserDto): Promise<User> {
+    const existingUser = await this.userRepository.getUserByEmail(dto.email);
+    if (existingUser) {
+      throw new ConflictException('Користувач з таким email вже існує');
+    }
 
-    if (existingUser)
-      throw new ConflictException(`Користувач з email ${user.email} вже існує`);
+    const source = dto.provider ?? 'credentials';
+    let hashedPassword: string | undefined;
 
-    const passwordHash = user.password && (await hash(user.password));
+    if (source === 'credentials') {
+      if (!dto.password) {
+        throw new BadRequestException(
+          'Пароль є обов’язковим для цього типу реєстрації',
+        );
+      }
+      hashedPassword = await hash(dto.password);
+    }
 
-    const createdUser = await this.userRepository.createUser({
-      ...user,
-      password: passwordHash,
+    return this.userRepository.createUser({
+      ...dto,
+      provider: source,
+      password: hashedPassword,
     });
-
-    return UserMapper.toResponse(createdUser);
   }
 
-  async updateUser(
-    userId: string,
-    dto: UpdateUserDto,
-  ): Promise<UserResponseDto> {
-    const existingUser = await this.userRepository.getUserById(userId);
+  async updateUser(userId: string, dto: UpdateUserDto) {
+    const hashedPassword = dto.password ? await hash(dto.password) : undefined;
 
-    if (!existingUser) {
-      throw new NotFoundException(`Користувач з id ${userId} не знайдений`);
-    }
+    const updatePayload: Partial<User> = {
+      ...dto,
+      ...(hashedPassword && { password: hashedPassword }),
+    };
 
-    const updatePayload: Partial<User> = { ...dto };
-
-    if (dto.password) {
-      updatePayload.password = await hash(dto.password);
-    }
-
-    const updatedUser = await this.userRepository.updateUser(
-      userId,
-      updatePayload,
-    );
-
-    return UserMapper.toResponse(updatedUser);
+    return this.userRepository.updateUser(userId, updatePayload);
   }
 
   async deleteUser(userId: string): Promise<void> {
