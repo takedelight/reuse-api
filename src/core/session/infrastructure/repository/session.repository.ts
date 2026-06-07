@@ -3,7 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Session } from '../../domain/session.model';
 import { ISessionRepository } from '../../domain/session.repository.interface';
-import { SessionEntity } from '../entity/session.model';
+import { SessionEntity } from '../entity/session.entity';
+import { SessionMapper } from '../mapper/session.mapper';
 
 @Injectable()
 export class SessionRepository implements ISessionRepository {
@@ -11,20 +12,28 @@ export class SessionRepository implements ISessionRepository {
     @InjectRepository(SessionEntity)
     private readonly sessionRepo: Repository<SessionEntity>,
   ) {}
-  getAllUserSessions(userId: string): Promise<Session[]> {
-    throw new Error('Method not implemented.');
-  }
-  getSessionById(sessionId: string): Promise<Session | null> {
-    throw new Error('Method not implemented.');
+  async getAllUserSessions(userId: string): Promise<Session[]> {
+    const sessions = await this.sessionRepo
+      .createQueryBuilder('session')
+      .where("session.json::jsonb ->> 'userId' = :userId", { userId })
+      .getMany();
+
+    return sessions.map((session) => SessionMapper.toDomain(session));
   }
 
-  deleteSession(sessionId: string): Promise<void> {
-    throw new Error('Method not implemented.');
+  async deleteSession(sessionId: string): Promise<void> {
+    await this.sessionRepo.delete(sessionId);
   }
-  deleteByUserIdExceptCurrent(
+
+  async deleteByUserIdExceptCurrent(
     userId: string,
     currentSessionId: string,
   ): Promise<void> {
-    throw new Error('Method not implemented.');
+    await this.sessionRepo
+      .createQueryBuilder('sessions')
+      .delete()
+      .where("sessions.json::jsonb ->> 'userId' = :userId", { userId })
+      .andWhere('sessions.id != :currentSessionId', { currentSessionId })
+      .execute();
   }
 }

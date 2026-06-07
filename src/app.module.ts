@@ -10,7 +10,8 @@ import { pinoConfig } from 'src/infrastructure/logger/pino.config';
 import { DataSource } from 'typeorm';
 import { isProd } from './common/utils/env.utils';
 import { AuthModule } from './core/auth/auth.module';
-import { SessionEntity } from './core/session/infrastructure/entity/session.model';
+import { SessionEntity } from './core/session/infrastructure/entity/session.entity';
+import { SessionModule } from './core/session/session.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { SessionEntity } from './core/session/infrastructure/entity/session.mode
     LoggerModule.forRoot(pinoConfig),
     UserModule,
     AuthModule,
+    SessionModule,
   ],
 })
 export class AppModule implements NestModule {
@@ -44,6 +46,7 @@ export class AppModule implements NestModule {
             ttl: Number(this.configService.getOrThrow('SESSION_TTL')),
           }).connect(sessionRepository),
           secret: this.configService.getOrThrow<string>('SESSION_SECRET'),
+          name: this.configService.getOrThrow<string>('SESSION_NAME'),
           resave: this.configService.getOrThrow('SESSION_RESAVE') === 'true',
           saveUninitialized:
             this.configService.getOrThrow('SESSION_SAVE_UNINITIALIZED') ===

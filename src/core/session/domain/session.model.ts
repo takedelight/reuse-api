@@ -1,29 +1,31 @@
+import { UserSource } from 'src/core/user/domain/user.model';
+
 export class Session {
   private readonly _id: string;
-  private readonly _provider: string;
+  private readonly _provider: UserSource;
   private readonly _userAgent: string;
   private readonly _userId: string;
-  private readonly _createdAt: Date;
+  private readonly _expires: string;
 
   constructor(
     id: string,
-    provider: string,
+    provider: UserSource,
     userAgent: string,
     userId: string,
-    createdAt: Date,
+    expires: string,
   ) {
     this._id = id;
     this._provider = provider;
     this._userAgent = userAgent;
     this._userId = userId;
-    this._createdAt = createdAt;
+    this._expires = expires;
   }
 
   get id(): string {
     return this._id;
   }
 
-  get provider(): string {
+  get provider(): UserSource {
     return this._provider;
   }
 
@@ -35,7 +37,7 @@ export class Session {
     return this._userId;
   }
 
-  get createdAt(): Date {
-    return this._createdAt;
+  get expires(): string {
+    return this._expires;
   }
 }
