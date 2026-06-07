@@ -74,7 +74,15 @@ export class UserService {
     });
   }
 
-  async updateUser(userId: string, dto: UpdateUserDto) {
+  async updateUser(
+    userId: string,
+    dto: UpdateUserDto,
+  ): Promise<UserResponseDto> {
+    const existingUser = await this.userRepository.getUserById(userId);
+    if (!existingUser) {
+      throw new NotFoundException(`Користувач з id ${userId} не існує`);
+    }
+
     const hashedPassword = dto.password ? await hash(dto.password) : undefined;
 
     const updatePayload: Partial<User> = {
@@ -82,7 +90,12 @@ export class UserService {
       ...(hashedPassword && { password: hashedPassword }),
     };
 
-    return this.userRepository.updateUser(userId, updatePayload);
+    const updatedUser = await this.userRepository.updateUser(
+      userId,
+      updatePayload,
+    );
+
+    return UserMapper.toResponse(updatedUser);
   }
 
   async deleteUser(userId: string): Promise<void> {

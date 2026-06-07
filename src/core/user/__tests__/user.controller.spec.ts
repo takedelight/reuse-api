@@ -1,5 +1,6 @@
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { USER_REPOSITORY_TOKEN } from '../domain/user.repository.interface';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { InMemoryUserRepository } from '../infrastructure/repository/in-memory.user.repository';
 import { UserController } from '../user.controller';
@@ -15,14 +16,14 @@ describe('UserController', () => {
       providers: [
         UserService,
         {
-          provide: 'IUserRepository',
+          provide: USER_REPOSITORY_TOKEN,
           useClass: InMemoryUserRepository,
         },
       ],
     }).compile();
 
     controller = module.get<UserController>(UserController);
-    repository = module.get<InMemoryUserRepository>('IUserRepository');
+    repository = module.get<InMemoryUserRepository>(USER_REPOSITORY_TOKEN);
   });
 
   it('should be defined', () => {
