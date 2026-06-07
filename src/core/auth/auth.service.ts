@@ -30,6 +30,7 @@ export class AuthService {
     const user = await this.userRepository.createUser({
       ...dto,
       password: hashedPassword,
+      provider: 'credentials',
     });
   }
 

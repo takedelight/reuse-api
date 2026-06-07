@@ -29,8 +29,6 @@ export class UserRepository implements IUserRepository {
   }
 
   async createUser(userData: Partial<User>): Promise<User> {
-    console.log(userData);
-
     const newEntity = this.userRepo.create(userData);
     const savedEntity = await this.userRepo.save(newEntity);
 
