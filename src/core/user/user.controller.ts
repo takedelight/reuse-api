@@ -1,4 +1,5 @@
-import { Body, Controller, Get, Param, Patch } from '@nestjs/common';
+import { Body, Controller, Get, Patch } from '@nestjs/common';
+import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserResponseDto } from './dto/user-response.dto';
 import { UserService } from './user.service';
@@ -12,16 +13,16 @@ export class UserController {
     return this.userService.getAllUsers();
   }
 
-  @Get(':id')
-  getUserById(@Param('id') id: string): Promise<UserResponseDto | null> {
-    return this.userService.getUserById(id);
+  @Get('/user')
+  getUserById(@CurrentUser() userId: string): Promise<UserResponseDto> {
+    return this.userService.getUserById(userId);
   }
 
-  @Patch(':id')
+  @Patch()
   updateUser(
-    @Param('id') id: string,
+    @CurrentUser() userId: string,
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<UserResponseDto> {
-    return this.userService.updateUser(id, updateUserDto);
+    return this.userService.updateUser(userId, updateUserDto);
   }
 }

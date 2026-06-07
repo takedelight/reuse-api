@@ -86,6 +86,7 @@ export class AuthService {
     req.session.userId = user.id;
     req.session.provider = user.provider || 'credentials';
     req.session.userAgent = userAgentInfo;
+    req.session.role = user.role;
 
     return new Promise<void>((resolve, reject) => {
       req.session.save((err) => {

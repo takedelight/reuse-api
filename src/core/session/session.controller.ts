@@ -1,6 +1,6 @@
 import { Controller, Delete, Get, Param } from '@nestjs/common';
+import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { SessionId } from 'src/common/decorators/session-id.decorator';
-import { UserId } from 'src/common/decorators/user-id.decorator';
 import { SessionService } from './session.service';
 
 @Controller('session')
@@ -14,7 +14,7 @@ export class SessionController {
 
   @Delete('others')
   deleteOtherSessions(
-    @UserId() userId: string,
+    @CurrentUser() userId: string,
     @SessionId() currentSessionId: string,
   ) {
     return this.sessionService.deleteOtherSessions(userId, currentSessionId);
