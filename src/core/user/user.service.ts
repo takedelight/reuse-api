@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Inject,
   Injectable,
@@ -6,7 +7,10 @@ import {
 } from '@nestjs/common';
 import { hash } from 'argon2';
 import { User } from './domain/user.model';
-import { type IUserRepository } from './domain/user.repository.interface';
+import {
+  USER_REPOSITORY_TOKEN,
+  type IUserRepository,
+} from './domain/user.repository.interface';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserResponseDto } from './dto/user-response.dto';
@@ -15,7 +19,7 @@ import { UserMapper } from './infrastructure/mapper/user.mapper';
 @Injectable()
 export class UserService {
   constructor(
-    @Inject('IUserRepository')
+    @Inject(USER_REPOSITORY_TOKEN)
     private readonly userRepository: IUserRepository,
   ) {}
 
@@ -45,20 +49,29 @@ export class UserService {
     return UserMapper.toResponse(user);
   }
 
-  async createUser(user: CreateUserDto): Promise<UserResponseDto> {
-    const existingUser = await this.userRepository.getUserByEmail(user.email);
+  async createUser(dto: CreateUserDto): Promise<User> {
+    const existingUser = await this.userRepository.getUserByEmail(dto.email);
+    if (existingUser) {
+      throw new ConflictException('Користувач з таким email вже існує');
+    }
 
-    if (existingUser)
-      throw new ConflictException(`Користувач з email ${user.email} вже існує`);
+    const source = dto.provider ?? 'credentials';
+    let hashedPassword: string | undefined;
 
-    const passwordHash = user.password && (await hash(user.password));
+    if (source === 'credentials') {
+      if (!dto.password) {
+        throw new BadRequestException(
+          'Пароль є обов’язковим для цього типу реєстрації',
+        );
+      }
+      hashedPassword = await hash(dto.password);
+    }
 
-    const createdUser = await this.userRepository.createUser({
-      ...user,
-      password: passwordHash,
+    return this.userRepository.createUser({
+      ...dto,
+      provider: source,
+      password: hashedPassword,
     });
-
-    return UserMapper.toResponse(createdUser);
   }
 
   async updateUser(
@@ -66,16 +79,16 @@ export class UserService {
     dto: UpdateUserDto,
   ): Promise<UserResponseDto> {
     const existingUser = await this.userRepository.getUserById(userId);
-
     if (!existingUser) {
-      throw new NotFoundException(`Користувач з id ${userId} не знайдений`);
+      throw new NotFoundException(`Користувач з id ${userId} не існує`);
     }
 
-    const updatePayload: Partial<User> = { ...dto };
+    const hashedPassword = dto.password ? await hash(dto.password) : undefined;
 
-    if (dto.password) {
-      updatePayload.password = await hash(dto.password);
-    }
+    const updatePayload: Partial<User> = {
+      ...dto,
+      ...(hashedPassword && { password: hashedPassword }),
+    };
 
     const updatedUser = await this.userRepository.updateUser(
       userId,

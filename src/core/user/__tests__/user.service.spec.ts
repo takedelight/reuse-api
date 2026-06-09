@@ -1,5 +1,6 @@
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { USER_REPOSITORY_TOKEN } from '../domain/user.repository.interface';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { InMemoryUserRepository } from '../infrastructure/repository/in-memory.user.repository';
@@ -14,14 +15,14 @@ describe('UserService', () => {
       providers: [
         UserService,
         {
-          provide: 'IUserRepository',
+          provide: USER_REPOSITORY_TOKEN,
           useClass: InMemoryUserRepository,
         },
       ],
     }).compile();
 
     service = module.get<UserService>(UserService);
-    repository = module.get<InMemoryUserRepository>('IUserRepository');
+    repository = module.get<InMemoryUserRepository>(USER_REPOSITORY_TOKEN);
   });
 
   it('should be defined', () => {

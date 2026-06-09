@@ -1,4 +1,7 @@
-import { type UserRole } from 'src/core/user/domain/user.model';
+import {
+  type UserRole,
+  type UserSource,
+} from 'src/core/user/domain/user.model';
 import {
   Column,
   CreateDateColumn,
@@ -16,6 +19,9 @@ export class UserEntity {
 
   @Column({ nullable: true })
   avatarUrl?: string;
+
+  @Column({ type: 'enum', enum: ['credentials', 'google', 'github'] })
+  provider: UserSource;
 
   @Column({ unique: true })
   email: string;

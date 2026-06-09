@@ -1,5 +1,7 @@
 import { User } from './user.model';
 
+export const USER_REPOSITORY_TOKEN = Symbol('IUserRepository');
+
 export interface IUserRepository {
   getAllUsers(): Promise<User[]>;
   getUserById(userId: string): Promise<User | null>;
