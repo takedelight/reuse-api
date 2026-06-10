@@ -16,7 +16,7 @@ jobs:
           node-version: '24'
         name: Setup node
 
-      - run: npm i
+      - run: npm i --legacy-peer-deps
         name: Install dependencies
 
       - run: npm run format
