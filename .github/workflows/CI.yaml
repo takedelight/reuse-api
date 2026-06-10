@@ -1,0 +1,22 @@
+name: CI
+'on':
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: self-hosted
+
+    steps:
+      - uses: actions/checkout@v6
+        name: Check depps
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '24'
+        name: Setup node
+      - run: npm ci
+        name: Install dependencies
+      - run: npm run format
+        name: Format code
+      - run: npm run lint
+        name: Lint code
