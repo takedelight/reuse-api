@@ -41,7 +41,6 @@ export class AuthService {
     const user = await this.userRepository.createUser({
       ...dto,
       password: hashedPassword,
-      provider: 'credentials',
     });
 
     await this.establishSession(user, req);
@@ -84,7 +83,6 @@ export class AuthService {
     ).browser;
 
     req.session.userId = user.id;
-    req.session.provider = user.provider || 'credentials';
     req.session.userAgent = userAgentInfo;
     req.session.role = user.role;
 

@@ -18,7 +18,6 @@ export class UserMapper {
       entity.id,
       entity.username,
       entity.email,
-      entity.provider,
       entity.role,
       entity.createdAt,
       entity.avatarUrl,
@@ -31,7 +30,6 @@ export class UserMapper {
     entity.id = domain.id;
     entity.username = domain.username;
     entity.email = domain.email;
-    entity.provider = domain.provider;
     entity.role = domain.role;
     entity.createdAt = domain.createdAt;
     entity.avatarUrl = domain.avatarUrl;

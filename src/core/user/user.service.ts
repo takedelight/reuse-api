@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   ConflictException,
   Inject,
   Injectable,
@@ -55,21 +54,14 @@ export class UserService {
       throw new ConflictException('Користувач з таким email вже існує');
     }
 
-    const source = dto.provider ?? 'credentials';
     let hashedPassword: string | undefined;
 
-    if (source === 'credentials') {
-      if (!dto.password) {
-        throw new BadRequestException(
-          'Пароль є обов’язковим для цього типу реєстрації',
-        );
-      }
+    if (dto.password) {
       hashedPassword = await hash(dto.password);
     }
 
     return this.userRepository.createUser({
       ...dto,
-      provider: source,
       password: hashedPassword,
     });
   }
