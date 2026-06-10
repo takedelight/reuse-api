@@ -10,13 +10,23 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         name: Check depps
-      - uses: actions/setup-node@v3
+
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
         with:
           node-version: '24'
+          cache: 'pnpm'
         name: Setup node
-      - run: npm ci
+
+      - run: pnpm install --frozen-lockfile
         name: Install dependencies
-      - run: npm run format
+
+      - run: pnpm run format
         name: Format code
-      - run: npm run lint
+
+      - run: pnpm run lint
         name: Lint code
