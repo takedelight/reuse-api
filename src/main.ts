@@ -2,6 +2,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 import { AppModule } from 'src/app.module';
 
@@ -12,6 +13,16 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
 
   const APP_PORT = configService.getOrThrow<number>('PORT');
+
+  const config = new DocumentBuilder()
+    .setTitle('Reuse API')
+    .setVersion('1.0')
+    .addCookieAuth(configService.getOrThrow<string>('SESSION_NAME'), {
+      type: 'apiKey',
+      in: 'cookie',
+    })
+    .addSecurityRequirements('cookie-auth')
+    .build();
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -28,6 +39,9 @@ async function bootstrap() {
     credentials: true,
     methods: ['GET', 'PATCH', 'POST', 'DELETE'],
   });
+
+  const documentFactory = () => SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('docs', app, documentFactory);
 
   await app.listen(APP_PORT, () =>
     console.log(`Application is running on port http://localhost:${APP_PORT}`),
