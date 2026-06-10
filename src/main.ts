@@ -17,6 +17,11 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('Reuse API')
     .setVersion('1.0')
+    .addCookieAuth(configService.getOrThrow<string>('SESSION_NAME'), {
+      type: 'apiKey',
+      in: 'cookie',
+    })
+    .addSecurityRequirements('cookie-auth')
     .build();
 
   app.useGlobalPipes(
