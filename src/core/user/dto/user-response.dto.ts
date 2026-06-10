@@ -8,7 +8,7 @@ export class UserResponseDto {
   username: string;
 
   @ApiProperty({ type: String, format: 'url' })
-  avatarUrl?: string;
+  avatarUrl: string | null;
 
   @ApiProperty({ type: String, format: 'email' })
   email: string;

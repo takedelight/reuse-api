@@ -8,8 +8,8 @@ export class User {
     private readonly _email: string,
     private readonly _role: UserRole,
     private readonly _createdAt: Date,
-    private readonly _avatarUrl?: string,
-    private _password?: string,
+    private readonly _avatarUrl: string | null = null,
+    private _password: string | null = null,
   ) {}
 
   get id(): string {
@@ -32,11 +32,11 @@ export class User {
     return this._createdAt;
   }
 
-  get avatarUrl(): string | undefined {
+  get avatarUrl(): string | null {
     return this._avatarUrl;
   }
 
-  get password(): string | undefined {
+  get password(): string | null {
     return this._password;
   }
 

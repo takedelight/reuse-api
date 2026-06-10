@@ -11,21 +11,27 @@ export class UserEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column({ unique: true, type: 'varchar' })
   username: string;
 
-  @Column({ nullable: true })
-  avatarUrl?: string;
+  @Column({ type: 'varchar', nullable: true, unique: true, default: null })
+  githubId: string | null;
 
-  @Column({ unique: true })
+  @Column({ type: 'varchar', nullable: true, unique: true, default: null })
+  googleId: string | null;
+
+  @Column({ nullable: true, type: 'varchar' })
+  avatarUrl: string | null;
+
+  @Column({ unique: true, type: 'varchar' })
   email: string;
 
-  @Column({ nullable: true })
-  password?: string;
+  @Column({ nullable: true, type: 'varchar' })
+  password: string | null;
 
   @Column({ type: 'enum', enum: ['admin', 'user'], default: 'user' })
   role: UserRole;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamp with time zone' })
   createdAt: Date;
 }

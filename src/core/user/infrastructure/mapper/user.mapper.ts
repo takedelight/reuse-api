@@ -8,7 +8,7 @@ export class UserMapper {
       id: user.id,
       username: user.username,
       email: user.email,
-      avatarUrl: user.avatarUrl,
+      avatarUrl: user.avatarUrl || null,
       createdAt: user.createdAt,
     };
   }
@@ -20,20 +20,8 @@ export class UserMapper {
       entity.email,
       entity.role,
       entity.createdAt,
-      entity.avatarUrl,
-      entity.password,
+      entity.avatarUrl || null,
+      entity.password || null,
     );
-  }
-
-  static toPersistence(domain: User): UserEntity {
-    const entity = new UserEntity();
-    entity.id = domain.id;
-    entity.username = domain.username;
-    entity.email = domain.email;
-    entity.role = domain.role;
-    entity.createdAt = domain.createdAt;
-    entity.avatarUrl = domain.avatarUrl;
-    entity.password = domain.password;
-    return entity;
   }
 }
