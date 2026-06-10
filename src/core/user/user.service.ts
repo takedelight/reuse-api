@@ -5,6 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { hash } from 'argon2';
+import { OAuthProfileDto } from '../auth/dto/oauth-response.dto';
 import { User } from './domain/user.model';
 import {
   USER_REPOSITORY_TOKEN,
@@ -88,6 +89,10 @@ export class UserService {
     );
 
     return UserMapper.toResponse(updatedUser);
+  }
+
+  async upsertUser(profile: OAuthProfileDto): Promise<User> {
+    return await this.userRepository.upsertOAuthUser(profile);
   }
 
   async deleteUser(userId: string): Promise<void> {

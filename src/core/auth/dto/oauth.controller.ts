@@ -1,14 +1,21 @@
-import { Controller, Get, Req } from '@nestjs/common';
+import { Controller, Get, Req, UseGuards } from '@nestjs/common';
 import { type Request } from 'express';
+import { Public } from 'src/common/decorators/public.decorator';
+import { GithubGuard } from 'src/common/guards/github.guard';
 import { AuthService } from '../auth.service';
 
 @Controller('oauth')
+@Public()
 export class OAuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Get('github')
+  @UseGuards(GithubGuard)
   async github(): Promise<void> {}
 
   @Get('github/callback')
-  async githubCallback(@Req() req: Request): Promise<void> {}
+  @UseGuards(GithubGuard)
+  async githubCallback(@Req() req: Request): Promise<void> {
+    return await this.authService.upsertOAuthUser(req.user, req);
+  }
 }

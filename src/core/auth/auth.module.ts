@@ -6,11 +6,12 @@ import { SessionModule } from '../session/session.module';
 import { UserModule } from '../user/user.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { OAuthController } from './dto/oauth.controller';
 import { GithubStrategy } from './infrastructure/strategy/github.strategy';
 
 @Module({
   imports: [UserModule, SessionModule],
-  controllers: [AuthController],
+  controllers: [AuthController, OAuthController],
   providers: [
     AuthService,
     {

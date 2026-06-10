@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { OAuthProfileDto } from 'src/core/auth/dto/oauth-response.dto';
 import { User } from '../../domain/user.model';
 import { IUserRepository } from '../../domain/user.repository.interface';
 import { UserEntity } from '../entity/user.entity';
@@ -6,6 +7,9 @@ import { UserMapper } from '../mapper/user.mapper';
 
 @Injectable()
 export class InMemoryUserRepository implements IUserRepository {
+  upsertOAuthUser(profile: OAuthProfileDto): Promise<User> {
+    throw new Error('Method not implemented.');
+  }
   private readonly users: UserEntity[] = [];
 
   getAllUsers(): Promise<User[]> {

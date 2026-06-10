@@ -1,7 +1,7 @@
 export class OAuthProfileDto {
   provider: 'github' | 'google';
 
-  email: string | null;
+  email: string;
 
   username: string;
 

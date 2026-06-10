@@ -18,6 +18,7 @@ import {
   USER_REPOSITORY_TOKEN,
 } from '../user/domain/user.repository.interface';
 import { LoginDto } from './dto/login.dto';
+import { OAuthProfileDto } from './dto/oauth-response.dto';
 import { RegisterDto } from './dto/register.dto';
 
 @Injectable()
@@ -77,7 +78,14 @@ export class AuthService {
     });
   }
 
+  async upsertOAuthUser(profile: OAuthProfileDto, req: Request): Promise<void> {
+    const user = await this.userRepository.upsertOAuthUser(profile);
+
+    await this.establishSession(user, req);
+  }
+
   private async establishSession(user: User, req: Request): Promise<void> {
+    console.log(user);
     const userAgentInfo = this.userAgentParser.parse(
       req.headers['user-agent'] || '',
     ).browser;
