@@ -6,6 +6,7 @@ import { SessionModule } from '../session/session.module';
 import { UserModule } from '../user/user.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { GithubStrategy } from './infrastructure/strategy/github.strategy';
 
 @Module({
   imports: [UserModule, SessionModule],
@@ -20,6 +21,7 @@ import { AuthService } from './auth.service';
       provide: APP_GUARD,
       useClass: RolesGuard,
     },
+    GithubStrategy,
   ],
 })
 export class AuthModule {}
