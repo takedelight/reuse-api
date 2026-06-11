@@ -6,8 +6,9 @@ import { SessionModule } from '../session/session.module';
 import { UserModule } from '../user/user.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { OAuthController } from './dto/oauth.controller';
+import { OAuthController } from './oauth.controller';
 import { GithubStrategy } from './infrastructure/strategy/github.strategy';
+import { GoogleStrategy } from './infrastructure/strategy/google.strategy';
 
 @Module({
   imports: [UserModule, SessionModule],
@@ -23,6 +24,7 @@ import { GithubStrategy } from './infrastructure/strategy/github.strategy';
       useClass: RolesGuard,
     },
     GithubStrategy,
+    GoogleStrategy,
   ],
 })
 export class AuthModule {}
