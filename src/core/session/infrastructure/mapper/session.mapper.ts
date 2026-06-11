@@ -1,26 +1,24 @@
-import { Session } from '../../domain/session.model';
+import { Session } from '@prisma/client';
+import { SessionModel } from '../../domain/session.model';
 import { SessionResponseDto } from '../../dto/session-response.dto';
-import { SessionEntity } from '../entity/session.entity';
 import { IParsedSession } from '../types/session.types';
 
 export class SessionMapper {
-  static toResponse(session: Session): SessionResponseDto {
+  static toResponse(session: SessionModel): SessionResponseDto {
     return {
       id: session.id,
       expires: session.expires,
-      provider: session.provider,
       userAgent: session.userAgent,
     };
   }
 
-  static toDomain(sessionEntity: SessionEntity): Session {
+  static toDomain(sessionEntity: Session): SessionModel {
     const sessionJson: IParsedSession = JSON.parse(
-      sessionEntity.json,
+      sessionEntity.data,
     ) as IParsedSession;
 
-    const session = new Session(
-      sessionEntity.id,
-      sessionJson.provider,
+    const session = new SessionModel(
+      sessionEntity.sid,
       sessionJson.userAgent,
       sessionJson.userId,
       sessionJson.cookie.expires,

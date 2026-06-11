@@ -51,10 +51,9 @@ export class S3StorageService implements IStorageService {
         ContentType: contentType,
       });
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      const url = (await getSignedUrl(this.s3Client, command, {
+      const url = await getSignedUrl(this.s3Client, command, {
         expiresIn: 900,
-      })) as string;
+      });
 
       return { url, key };
     } catch (error) {
@@ -73,10 +72,9 @@ export class S3StorageService implements IStorageService {
         Key: key,
       });
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      return (await getSignedUrl(this.s3Client, command, {
+      return await getSignedUrl(this.s3Client, command, {
         expiresIn: 3600,
-      })) as string;
+      });
     } catch (error) {
       const msg = error instanceof Error ? error.message : String(error);
       throw new InternalServerErrorException(

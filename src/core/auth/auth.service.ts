@@ -12,12 +12,13 @@ import {
   type IUserAgentParserRepository,
   USER_AGENT_PARSER_TOKEN,
 } from '../session/domain/ua-parser.interface';
-import { User } from '../user/domain/user.model';
+import { UserModel } from '../user/domain/user.model';
 import {
   type IUserRepository,
   USER_REPOSITORY_TOKEN,
 } from '../user/domain/user.repository.interface';
 import { LoginDto } from './dto/login.dto';
+import { OAuthProfileDto } from './dto/oauth-response.dto';
 import { RegisterDto } from './dto/register.dto';
 
 @Injectable()
@@ -41,7 +42,6 @@ export class AuthService {
     const user = await this.userRepository.createUser({
       ...dto,
       password: hashedPassword,
-      provider: 'credentials',
     });
 
     await this.establishSession(user, req);
@@ -78,13 +78,18 @@ export class AuthService {
     });
   }
 
-  private async establishSession(user: User, req: Request): Promise<void> {
+  async upsertOAuthUser(profile: OAuthProfileDto, req: Request): Promise<void> {
+    const user = await this.userRepository.upsertOAuthUser(profile);
+
+    await this.establishSession(user, req);
+  }
+
+  private async establishSession(user: UserModel, req: Request): Promise<void> {
     const userAgentInfo = this.userAgentParser.parse(
       req.headers['user-agent'] || '',
     ).browser;
 
     req.session.userId = user.id;
-    req.session.provider = user.provider || 'credentials';
     req.session.userAgent = userAgentInfo;
     req.session.role = user.role;
 

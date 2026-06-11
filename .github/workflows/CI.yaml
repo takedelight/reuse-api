@@ -5,22 +5,36 @@ name: CI
 
 jobs:
   build:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v6
         name: Check depps
 
+      - run: git clean -xfd
+        name: Clean workspace
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+        name: Setup pnpm
+
       - uses: actions/setup-node@v4
         with:
-          node-version: '24'
+          node-version: '22'
         name: Setup node
 
-      - run: npm i --legacy-peer-deps
+      - run: pnpm install --no-frozen-lockfile
         name: Install dependencies
 
-      - run: npm run format
+      - run: pnpm prisma generate
+        name: Generate prisma client
+
+      - run: pnpm run format
         name: Format code
 
-      - run: npm run lint
+      - run: pnpm run lint
         name: Lint code
+
+      - run: pnpm run test
+        name: Run tests

@@ -6,10 +6,13 @@ import { SessionModule } from '../session/session.module';
 import { UserModule } from '../user/user.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { OAuthController } from './oauth.controller';
+import { GithubStrategy } from './infrastructure/strategy/github.strategy';
+import { GoogleStrategy } from './infrastructure/strategy/google.strategy';
 
 @Module({
   imports: [UserModule, SessionModule],
-  controllers: [AuthController],
+  controllers: [AuthController, OAuthController],
   providers: [
     AuthService,
     {
@@ -20,6 +23,8 @@ import { AuthService } from './auth.service';
       provide: APP_GUARD,
       useClass: RolesGuard,
     },
+    GithubStrategy,
+    GoogleStrategy,
   ],
 })
 export class AuthModule {}

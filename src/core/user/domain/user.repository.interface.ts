@@ -1,12 +1,16 @@
-import { User } from './user.model';
+import { type OAuthProfileDto } from 'src/core/auth/dto/oauth-response.dto';
+import { type UserModel } from './user.model';
 
 export const USER_REPOSITORY_TOKEN = Symbol('IUserRepository');
 
 export interface IUserRepository {
-  getAllUsers(): Promise<User[]>;
-  getUserById(userId: string): Promise<User | null>;
-  getUserByEmail(email: string): Promise<User | null>;
-  createUser(user: Partial<User>): Promise<User>;
-  updateUser(userId: string, user: Partial<User>): Promise<User>;
+  getAllUsers(): Promise<UserModel[]>;
+  getUserById(userId: string): Promise<UserModel | null>;
+  getUserByEmail(email: string): Promise<UserModel | null>;
+
+  createUser(user: Partial<UserModel>): Promise<UserModel>;
+  updateUser(userId: string, user: Partial<UserModel>): Promise<UserModel>;
   deleteUser(userId: string): Promise<void>;
+
+  upsertOAuthUser(profile: OAuthProfileDto): Promise<UserModel>;
 }

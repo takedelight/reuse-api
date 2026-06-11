@@ -9,6 +9,5 @@ export interface ISessionCookie {
 export interface IParsedSession {
   cookie: ISessionCookie;
   userId: string;
-  provider: 'credentials' | 'google' | 'github';
   userAgent: string;
 }
