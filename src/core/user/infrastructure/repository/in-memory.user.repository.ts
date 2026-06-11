@@ -9,7 +9,58 @@ export class InMemoryUserRepository implements IUserRepository {
   private readonly users: UserModel[] = [];
 
   upsertOAuthUser(profile: OAuthProfileDto): Promise<UserModel> {
-    throw new Error('Method not implemented.');
+    let user: UserModel | undefined;
+
+    if (profile.provider === 'github' && profile.githubId) {
+      user = this.users.find((u) => u.githubId === profile.githubId);
+    }
+
+    if (profile.provider === 'google' && profile.googleId) {
+      user = this.users.find((u) => u.googleId === profile.googleId);
+    }
+
+    if (!user) {
+      user = this.users.find((u) => u.email === profile.email);
+    }
+
+    if (user) {
+      const updatedUser = new UserModel(
+        user.id,
+        profile.username,
+        user.email,
+        user.role,
+        profile.provider === 'github'
+          ? (profile.githubId ?? user.githubId)
+          : user.githubId,
+        profile.provider === 'google'
+          ? (profile.googleId ?? user.googleId)
+          : user.googleId,
+        user.createdAt,
+        profile.avatarUrl ?? user.avatarUrl,
+        user.password,
+      );
+
+      const index = this.users.findIndex((u) => u.id === user.id);
+      this.users[index] = updatedUser;
+
+      return Promise.resolve(updatedUser);
+    }
+
+    const newUser = new UserModel(
+      crypto.randomUUID(),
+      profile.username,
+      profile.email,
+      'user',
+      profile.provider === 'github' ? profile.githubId : undefined,
+      profile.provider === 'google' ? profile.googleId : undefined,
+      new Date(),
+      profile.avatarUrl ?? null,
+      null,
+    );
+
+    this.users.push(newUser);
+
+    return Promise.resolve(newUser);
   }
 
   getAllUsers(): Promise<UserModel[]> {
