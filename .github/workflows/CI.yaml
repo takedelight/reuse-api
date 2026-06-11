@@ -19,8 +19,14 @@ jobs:
       - run: npm i --legacy-peer-deps
         name: Install dependencies
 
+      - run: npx prisma generate
+        name: Generate prisma client
+
       - run: npm run format
         name: Format code
 
       - run: npm run lint
         name: Lint code
+
+      - run: npm run test
+        name: Run tests
