@@ -14,23 +14,28 @@ jobs:
       - run: git clean -xfd
         name: Clean workspace
 
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+        name: Setup pnpm
+
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: 'pnpm'
         name: Setup node
 
-      - run: npm i --legacy-peer-deps
+      - run: pnpm install --no-frozen-lockfile
         name: Install dependencies
 
-      - run: npx prisma generate
-        shell: cmd
+      - run: pnpm prisma generate
         name: Generate prisma client
 
-      - run: npm run format
+      - run: pnpm run format
         name: Format code
 
-      - run: npm run lint
+      - run: pnpm run lint
         name: Lint code
 
-      - run: npm run test
+      - run: pnpm run test
         name: Run tests
