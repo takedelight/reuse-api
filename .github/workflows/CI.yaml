@@ -18,7 +18,7 @@
 
         - run: git clean -xfd
 
-        - run: npm сi --legacy-peer-deps
+        - run: npm i --legacy-peer-deps
           name: Install dependencies
 
         - run: npx prisma generate
