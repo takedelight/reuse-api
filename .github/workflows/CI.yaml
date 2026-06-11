@@ -1,34 +1,36 @@
-  name: CI
-  'on':
-    pull_request:
-      branches: [main]
+name: CI
+'on':
+  pull_request:
+    branches: [main]
 
-  jobs:
-    build:
-      runs-on: self-hosted
+jobs:
+  build:
+    runs-on: self-hosted
 
-      steps:
-        - uses: actions/checkout@v6
-          name: Check depps
+    steps:
+      - uses: actions/checkout@v6
+        name: Check depps
 
-        - uses: actions/setup-node@v4
-          with:
-            node-version: '22'
-          name: Setup node
+      - run: git clean -xfd
+        name: Clean workspace
 
-        - run: git clean -xfd
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+        name: Setup node
 
-        - run: npm i --legacy-peer-deps
-          name: Install dependencies
+      - run: npm i --legacy-peer-deps
+        name: Install dependencies
 
-        - run: npx prisma generate
-          name: Generate prisma client
+      - run: npx prisma generate
+        shell: cmd
+        name: Generate prisma client
 
-        - run: npm run format
-          name: Format code
+      - run: npm run format
+        name: Format code
 
-        - run: npm run lint
-          name: Lint code
+      - run: npm run lint
+        name: Lint code
 
-        - run: npm run test
-          name: Run tests
+      - run: npm run test
+        name: Run tests
