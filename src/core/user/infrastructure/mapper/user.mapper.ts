@@ -1,9 +1,10 @@
-import { User } from 'src/core/user/domain/user.model';
+import { UserModel } from 'src/core/user/domain/user.model';
 import { UserResponseDto } from '../../dto/user-response.dto';
-import { UserEntity } from '../entity/user.entity';
+
+import { Users } from '@prisma/client';
 
 export class UserMapper {
-  static toResponse(user: User): UserResponseDto {
+  static toResponse(user: UserModel): UserResponseDto {
     return {
       id: user.id,
       username: user.username,
@@ -13,15 +14,17 @@ export class UserMapper {
     };
   }
 
-  static toDomain(entity: UserEntity): User {
-    return new User(
+  static toDomain(entity: Users): UserModel {
+    return new UserModel(
       entity.id,
       entity.username,
       entity.email,
       entity.role,
+      entity.githubId,
+      entity.googleId,
       entity.createdAt,
-      entity.avatarUrl || null,
-      entity.password || null,
+      entity.avatarUrl,
+      entity.password,
     );
   }
 }

@@ -1,105 +1,139 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { Users } from '@prisma/client';
 import { OAuthProfileDto } from 'src/core/auth/dto/oauth-response.dto';
-import { Repository } from 'typeorm';
-import { User } from '../../domain/user.model';
+import { PrismaService } from 'src/infrastructure/database/prisma.service';
+import { UserModel } from '../../domain/user.model';
 import { IUserRepository } from '../../domain/user.repository.interface';
-import { UserEntity } from '../entity/user.entity';
 import { UserMapper } from '../mapper/user.mapper';
 
 @Injectable()
 export class UserRepository implements IUserRepository {
-  constructor(
-    @InjectRepository(UserEntity)
-    private readonly userRepo: Repository<UserEntity>,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-  async upsertOAuthUser(profile: OAuthProfileDto): Promise<User> {
-    let user: UserEntity | null = null;
+  async upsertOAuthUser(profile: OAuthProfileDto): Promise<UserModel> {
+    let user: Users | null = null;
 
     if (profile.provider === 'github') {
-      user = await this.userRepo.findOneBy({
-        githubId: profile.githubId,
+      user = await this.prisma.users.findUnique({
+        where: {
+          githubId: profile.githubId,
+        },
       });
     }
 
     if (profile.provider === 'google') {
-      user = await this.userRepo.findOneBy({
-        googleId: profile.googleId,
+      user = await this.prisma.users.findUnique({
+        where: {
+          googleId: profile.googleId,
+        },
       });
     }
 
     if (!user) {
-      user = await this.userRepo.findOneBy({
-        email: profile.email,
+      user = await this.prisma.users.findUnique({
+        where: {
+          email: profile.email,
+        },
       });
     }
 
     if (user) {
-      user.username = profile.username;
-      user.avatarUrl = profile.avatarUrl;
+      const updatedUser = await this.prisma.users.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          username: profile.username,
+          avatarUrl: profile.avatarUrl,
+          githubId:
+            profile.provider === 'github' ? profile.githubId : user.githubId,
+          googleId:
+            profile.provider === 'google' ? profile.googleId : user.googleId,
+        },
+      });
 
-      if (profile.provider === 'github') {
-        user.githubId = profile.githubId ?? null;
-      }
-
-      if (profile.provider === 'google') {
-        user.googleId = profile.googleId ?? null;
-      }
-
-      await this.userRepo.save(user);
-
-      return UserMapper.toDomain(user);
+      return UserMapper.toDomain(updatedUser);
     }
 
-    const createdUser = this.userRepo.create({
-      email: profile.email,
-      username: profile.username,
-      avatarUrl: profile.avatarUrl,
-      githubId: profile.provider === 'github' ? profile.githubId : null,
-      googleId: profile.provider === 'google' ? profile.googleId : null,
+    const createdUser = await this.prisma.users.create({
+      data: {
+        email: profile.email,
+        username: profile.username,
+        avatarUrl: profile.avatarUrl,
+        githubId: profile.provider === 'github' ? profile.githubId : null,
+        googleId: profile.provider === 'google' ? profile.googleId : null,
+      },
     });
 
-    return UserMapper.toDomain(await this.userRepo.save(createdUser));
+    return UserMapper.toDomain(createdUser);
   }
 
-  async getAllUsers(): Promise<User[]> {
-    const users = await this.userRepo.find();
-    return users.map((user) => UserMapper.toDomain(user));
+  async getAllUsers(): Promise<UserModel[]> {
+    const users = await this.prisma.users.findMany();
+
+    return users.map((u) => UserMapper.toDomain(u));
   }
 
-  async getUserById(id: string): Promise<User | null> {
-    const user = await this.userRepo.findOne({ where: { id } });
+  async getUserById(userId: string): Promise<UserModel | null> {
+    const user = await this.prisma.users.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
     return user ? UserMapper.toDomain(user) : null;
   }
 
-  async getUserByEmail(email: string): Promise<User | null> {
-    const user = await this.userRepo.findOne({ where: { email } });
+  async getUserByEmail(email: string): Promise<UserModel | null> {
+    const user = await this.prisma.users.findUnique({
+      where: {
+        email,
+      },
+    });
+
     return user ? UserMapper.toDomain(user) : null;
   }
 
-  async createUser(userData: Partial<User>): Promise<User> {
-    const newEntity = this.userRepo.create(userData);
-    const savedEntity = await this.userRepo.save(newEntity);
+  async createUser(userData: Partial<UserModel>): Promise<UserModel> {
+    const createdUser = await this.prisma.users.create({
+      data: {
+        username: userData.username!,
+        email: userData.email!,
+        password: userData.password ?? null,
+        avatarUrl: userData.avatarUrl ?? null,
+        githubId: null,
+        googleId: null,
+      },
+    });
 
-    return UserMapper.toDomain(savedEntity);
+    return UserMapper.toDomain(createdUser);
   }
 
-  async updateUser(userId: string, updateData: Partial<User>): Promise<User> {
-    await this.userRepo.update(userId, updateData);
+  async updateUser(
+    userId: string,
+    updateData: Partial<UserModel>,
+  ): Promise<UserModel> {
+    const updatedUser = await this.prisma.users.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        username: updateData.username,
+        email: updateData.email,
+        password: updateData.password,
+        avatarUrl: updateData.avatarUrl,
+        role: updateData.role,
+      },
+    });
 
-    const updatedUser = await this.getUserById(userId);
-
-    if (!updatedUser) {
-      throw new Error(
-        'Під час оновлення користувача виникла помилка. Користувача не знайдено.',
-      );
-    }
-
-    return updatedUser;
+    return UserMapper.toDomain(updatedUser);
   }
 
   async deleteUser(userId: string): Promise<void> {
-    await this.userRepo.delete(userId);
+    await this.prisma.users.delete({
+      where: {
+        id: userId,
+      },
+    });
   }
 }

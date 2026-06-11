@@ -1,17 +1,16 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { PrismaService } from 'src/infrastructure/database/prisma.service';
 import { SESSION_REPOSITORY_TOKEN } from './domain/session.repository.interface';
 import { USER_AGENT_PARSER_TOKEN } from './domain/ua-parser.interface';
-import { SessionEntity } from './infrastructure/entity/session.entity';
 import { SessionRepository } from './infrastructure/repository/session.repository';
 import { UserAgentParserRepository } from './infrastructure/repository/ua-parser.repository';
 import { SessionController } from './session.controller';
 import { SessionService } from './session.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([SessionEntity])],
   providers: [
     SessionService,
+    PrismaService,
     {
       provide: SESSION_REPOSITORY_TOKEN,
       useClass: SessionRepository,

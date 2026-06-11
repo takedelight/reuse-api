@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { hash } from 'argon2';
 import { OAuthProfileDto } from '../auth/dto/oauth-response.dto';
-import { User } from './domain/user.model';
+import { UserModel } from './domain/user.model';
 import {
   USER_REPOSITORY_TOKEN,
   type IUserRepository,
@@ -49,7 +49,7 @@ export class UserService {
     return UserMapper.toResponse(user);
   }
 
-  async createUser(dto: CreateUserDto): Promise<User> {
+  async createUser(dto: CreateUserDto): Promise<UserModel> {
     const existingUser = await this.userRepository.getUserByEmail(dto.email);
     if (existingUser) {
       throw new ConflictException('Користувач з таким email вже існує');
@@ -78,7 +78,7 @@ export class UserService {
 
     const hashedPassword = dto.password ? await hash(dto.password) : undefined;
 
-    const updatePayload: Partial<User> = {
+    const updatePayload: Partial<UserModel> = {
       ...dto,
       ...(hashedPassword && { password: hashedPassword }),
     };
@@ -91,7 +91,7 @@ export class UserService {
     return UserMapper.toResponse(updatedUser);
   }
 
-  async upsertUser(profile: OAuthProfileDto): Promise<User> {
+  async upsertUser(profile: OAuthProfileDto): Promise<UserModel> {
     return await this.userRepository.upsertOAuthUser(profile);
   }
 

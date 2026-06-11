@@ -12,7 +12,7 @@ import {
   type IUserAgentParserRepository,
   USER_AGENT_PARSER_TOKEN,
 } from '../session/domain/ua-parser.interface';
-import { User } from '../user/domain/user.model';
+import { UserModel } from '../user/domain/user.model';
 import {
   type IUserRepository,
   USER_REPOSITORY_TOKEN,
@@ -84,8 +84,7 @@ export class AuthService {
     await this.establishSession(user, req);
   }
 
-  private async establishSession(user: User, req: Request): Promise<void> {
-    console.log(user);
+  private async establishSession(user: UserModel, req: Request): Promise<void> {
     const userAgentInfo = this.userAgentParser.parse(
       req.headers['user-agent'] || '',
     ).browser;
