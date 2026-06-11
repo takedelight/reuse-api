@@ -8,15 +8,17 @@ export class PostModel {
   private readonly _updatedAt: Date;
 
   constructor(
+    id: string,
     slug: string,
+    isPublished: boolean,
     title: string,
     content: string,
     createdAt: Date,
     updatedAt: Date,
   ) {
-    this._id = crypto.randomUUID();
-    this._isPublished = false;
+    this._id = id;
     this._slug = slug;
+    this._isPublished = isPublished;
     this._title = title;
     this._content = content;
     this._createdAt = createdAt;

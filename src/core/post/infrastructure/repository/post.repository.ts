@@ -1,8 +1,10 @@
 import { IPostRepository } from '../../domain/post.repository.interface';
 import { PostModel } from '../../domain/post.model';
-import { PrismaService } from '../../../../infrastructure/database/prisma.service';
+import { PrismaService } from 'src/infrastructure/database/prisma.service';
 import { PostMapper } from '../mapper/post.mapper';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class PostRepository implements IPostRepository {
   constructor(private readonly prisma: PrismaService) {}
 
@@ -24,7 +26,7 @@ export class PostRepository implements IPostRepository {
     return post ? PostMapper.toDomain(post) : null;
   }
 
-  async createPost(post: PostModel): Promise<PostModel> {
+  async createPost(userId: string, post: PostModel): Promise<PostModel> {
     const createdPost = await this.prisma.post.create({
       data: {
         id: post.id ?? undefined,
@@ -32,6 +34,7 @@ export class PostRepository implements IPostRepository {
         title: post.title,
         content: post.content,
         isPublished: post.isPublished,
+        userId: userId,
       },
     });
 

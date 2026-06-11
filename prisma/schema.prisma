@@ -48,8 +48,8 @@ model Post {
   title   String
   content String
 
-  users   Users?  @relation(fields: [usersId], references: [id], onDelete: Cascade)
-  usersId String? @map("users_id")
+  user   Users?  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String? @map("users_id")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
