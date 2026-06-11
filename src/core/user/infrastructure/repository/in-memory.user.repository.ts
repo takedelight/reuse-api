@@ -1,68 +1,84 @@
-// import { Injectable } from '@nestjs/common';
-// import { OAuthProfileDto } from 'src/core/auth/dto/oauth-response.dto';
-// import { UserModel } from '../../domain/user.model';
-// import { IUserRepository } from '../../domain/user.repository.interface';
-// import { UserMapper } from '../mapper/user.mapper';
+import { Injectable } from '@nestjs/common';
+import { OAuthProfileDto } from 'src/core/auth/dto/oauth-response.dto';
+import { UserModel } from '../../domain/user.model';
+import { IUserRepository } from '../../domain/user.repository.interface';
+import { UserMapper } from '../mapper/user.mapper';
 
-// @Injectable()
-// export class InMemoryUserRepository implements IUserRepository {
-//   upsertOAuthUser(profile: OAuthProfileDto): Promise<UserModel> {
-//     throw new Error('Method not implemented.');
-//   }
-//   private readonly users: UserModel[] = [];
+@Injectable()
+export class InMemoryUserRepository implements IUserRepository {
+  private readonly users: UserModel[] = [];
 
-//   getAllUsers(): Promise<UserModel[]> {
-//     return Promise.resolve(this.users.map((user) => UserMapper.toDomain(user)));
-//   }
+  upsertOAuthUser(profile: OAuthProfileDto): Promise<UserModel> {
+    throw new Error('Method not implemented.');
+  }
 
-//   getUserById(id: string): Promise<UserModel | null> {
-//     const user = this.users.find((u) => u.id === id);
-//     return Promise.resolve(user ? UserMapper.toDomain(user) : null);
-//   }
+  getAllUsers(): Promise<UserModel[]> {
+    return Promise.resolve(this.users.map((user) => UserMapper.toDomain(user)));
+  }
 
-//   getUserByEmail(email: string): Promise<UserModel | null> {
-//     const user = this.users.find((u) => u.email === email);
-//     return Promise.resolve(user ? UserMapper.toDomain(user) : null);
-//   }
+  getUserById(id: string): Promise<UserModel | null> {
+    const user = this.users.find((u) => u.id === id);
+    return Promise.resolve(user ? UserMapper.toDomain(user) : null);
+  }
 
-//   createUser(userData: Partial<UserModel>): Promise<UserModel> {
-//     const newEntity = new UserEntity();
+  getUserByEmail(email: string): Promise<UserModel | null> {
+    const user = this.users.find((u) => u.email === email);
+    return Promise.resolve(user ? UserMapper.toDomain(user) : null);
+  }
 
-//     newEntity.id = userData.id || crypto.randomUUID();
-//     newEntity.username = userData.username!;
-//     newEntity.email = userData.email!;
-//     newEntity.password = userData.password!;
-//     newEntity.role = userData.role || 'user';
-//     newEntity.avatarUrl = userData.avatarUrl || '';
-//     newEntity.createdAt = new Date();
+  async createUser(userData: Partial<UserModel>): Promise<UserModel> {
+    const newUser = new UserModel(
+      userData.id ?? crypto.randomUUID(),
+      userData.username!,
+      userData.email!,
+      userData.role ?? 'user',
+      userData.githubId,
+      userData.googleId,
+      new Date(),
+      userData.avatarUrl ?? null,
+      userData.password ?? null,
+    );
 
-//     this.users.push(newEntity);
+    this.users.push(newUser);
 
-//     return Promise.resolve(UserMapper.toDomain(newEntity));
-//   }
+    return Promise.resolve(newUser);
+  }
 
-//   updateUser(
-//     userId: string,
-//     updateData: Partial<UserModel>,
-//   ): Promise<UserModel> {
-//     const index = this.users.findIndex((u) => u.id === userId);
+  updateUser(
+    userId: string,
+    updateData: Partial<UserModel>,
+  ): Promise<UserModel> {
+    const user = this.users.find((u) => u.id === userId);
 
-//     if (index === -1) {
-//       throw new Error(
-//         'Під час оновлення користувача виникла помилка. Користувача не знайдено.',
-//       );
-//     }
+    if (!user) {
+      throw new Error(
+        'Під час оновлення користувача виникла помилка. Користувача не знайдено.',
+      );
+    }
 
-//     Object.assign(this.users[index], updateData);
+    const updatedUser = new UserModel(
+      user.id,
+      updateData.username ?? user.username,
+      updateData.email ?? user.email,
+      updateData.role ?? user.role,
+      user.githubId ?? user.githubId,
+      user.googleId ?? user.googleId,
+      user.createdAt,
+      updateData.avatarUrl ?? user.avatarUrl,
+      updateData.password ?? user.password,
+    );
 
-//     return Promise.resolve(UserMapper.toDomain(this.users[index]));
-//   }
+    const index = this.users.findIndex((u) => u.id === userId);
+    this.users[index] = updatedUser;
 
-//   deleteUser(userId: string): Promise<void> {
-//     const index = this.users.findIndex((u) => u.id === userId);
-//     if (index !== -1) {
-//       this.users.splice(index, 1);
-//     }
-//     return Promise.resolve();
-//   }
-// }
+    return Promise.resolve(updatedUser);
+  }
+
+  deleteUser(userId: string): Promise<void> {
+    const index = this.users.findIndex((u) => u.id === userId);
+    if (index !== -1) {
+      this.users.splice(index, 1);
+    }
+    return Promise.resolve();
+  }
+}
