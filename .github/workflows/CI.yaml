@@ -23,7 +23,6 @@ jobs:
         name: Install dependencies
 
       - run: npx prisma generate
-        shell: cmd
         name: Generate prisma client
 
       - run: npm run format
