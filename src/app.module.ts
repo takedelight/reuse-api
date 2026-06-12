@@ -7,6 +7,8 @@ import { AuthModule } from './core/auth/auth.module';
 import { SessionModule } from './core/session/session.module';
 import { PrismaModule } from './infrastructure/database/prisma.module';
 import { PrismaService } from './infrastructure/database/prisma.service';
+import { PostModule } from './core/post/post.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -16,6 +18,7 @@ import { PrismaService } from './infrastructure/database/prisma.service';
     AuthModule,
     SessionModule,
     PrismaModule,
+    PostModule,
   ],
   providers: [PrismaService],
 })

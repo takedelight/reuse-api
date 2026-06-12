@@ -12,8 +12,8 @@ model Session {
   data      String
   expiresAt DateTime
 
-  users     Users?   @relation(fields: [usersId], references: [id], onDelete: Cascade)
-  usersId   String?  @map("users_id")
+  users   Users?  @relation(fields: [usersId], references: [id], onDelete: Cascade)
+  usersId String? @map("users_id")
 
   @@index([expiresAt])
   @@map("sessions")
@@ -22,19 +22,39 @@ model Session {
 model Users {
   id        String    @id @default(uuid())
   username  String
-  avatarUrl String? @map("avatar_url")
-  email     String   @unique
+  avatarUrl String?   @map("avatar_url")
+  email     String    @unique
   password  String?
   role      UserRoles @default(user)
 
-  githubId  String? @unique @map("github_id")
-  googleId  String? @unique @map("google_id")
+  githubId String? @unique @map("github_id")
+  googleId String? @unique @map("google_id")
 
+  posts   Post[]
   session Session[]
 
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("users")
+}
+
+model Post {
+  id String @id @default(uuid())
+
+  slug String? @unique
+
+  isPublished Boolean @default(false) @map("is_published")
+
+  title   String
+  content String
+
+  user   Users?  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String? @map("users_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("posts")
 }
 
 enum UserRoles {
