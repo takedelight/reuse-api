@@ -7,7 +7,7 @@ datasource db {
 }
 
 model Session {
-  id        String   @id @default(cuid())
+  id        String   @id @unique
   sid       String   @unique
   data      String
   expiresAt DateTime
