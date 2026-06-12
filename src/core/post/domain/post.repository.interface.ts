@@ -1,5 +1,4 @@
 import { PostModel } from './post.model';
-import { CreatePostDto } from '../dto/create-post.dto';
 
 export const POST_REPOSITORY_TOKEN = Symbol('IPostRepository');
 
@@ -8,7 +7,7 @@ export interface IPostRepository {
   findById: (postId: string) => Promise<PostModel | null>;
   findBySlug: (slug: string) => Promise<PostModel | null>;
 
-  createPost: (userId: string, dto: CreatePostDto) => Promise<PostModel>;
+  createPost: (userId: string, dto: PostModel) => Promise<PostModel>;
   updatePost: (post: PostModel) => Promise<PostModel>;
 
   deletePost: (postId: string) => Promise<void>;
