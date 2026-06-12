@@ -20,7 +20,7 @@ model Session {
 }
 
 model Users {
-  id        String    @id @default(uuid())
+  id        String    @id @unique
   username  String
   avatarUrl String?   @map("avatar_url")
   email     String    @unique

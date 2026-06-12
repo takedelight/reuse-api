@@ -8,7 +8,10 @@ import { UserMapper } from '../mapper/user.mapper';
 export class InMemoryUserRepository implements IUserRepository {
   private readonly users: UserModel[] = [];
 
-  upsertOAuthUser(profile: OAuthProfileDto): Promise<UserModel> {
+  upsertOAuthUser(
+    userId: string,
+    profile: OAuthProfileDto,
+  ): Promise<UserModel> {
     let user: UserModel | undefined;
 
     if (profile.provider === 'github' && profile.githubId) {
@@ -28,16 +31,12 @@ export class InMemoryUserRepository implements IUserRepository {
         user.id,
         profile.username,
         user.email,
-        user.role,
-        profile.provider === 'github'
-          ? (profile.githubId ?? user.githubId)
-          : user.githubId,
-        profile.provider === 'google'
-          ? (profile.googleId ?? user.googleId)
-          : user.googleId,
-        user.createdAt,
-        profile.avatarUrl ?? user.avatarUrl,
         user.password,
+        profile.avatarUrl ?? user.avatarUrl,
+        user.role,
+        null,
+        null,
+        user.createdAt,
       );
 
       const index = this.users.findIndex((u) => u.id === user.id);
@@ -50,12 +49,12 @@ export class InMemoryUserRepository implements IUserRepository {
       crypto.randomUUID(),
       profile.username,
       profile.email,
-      'user',
-      profile.provider === 'github' ? profile.githubId : undefined,
-      profile.provider === 'google' ? profile.googleId : undefined,
-      new Date(),
-      profile.avatarUrl ?? null,
       null,
+      profile.avatarUrl ?? null,
+      'user',
+      null,
+      null,
+      new Date(),
     );
 
     this.users.push(newUser);
@@ -77,17 +76,17 @@ export class InMemoryUserRepository implements IUserRepository {
     return Promise.resolve(user ? UserMapper.toDomain(user) : null);
   }
 
-  async createUser(userData: Partial<UserModel>): Promise<UserModel> {
+  async createUser(userData: UserModel): Promise<UserModel> {
     const newUser = new UserModel(
       userData.id ?? crypto.randomUUID(),
-      userData.username!,
-      userData.email!,
+      userData.username,
+      userData.email,
+      userData.password ?? null,
+      userData.avatarUrl ?? null,
       userData.role ?? 'user',
       userData.githubId,
       userData.googleId,
       new Date(),
-      userData.avatarUrl ?? null,
-      userData.password ?? null,
     );
 
     this.users.push(newUser);
@@ -111,12 +110,12 @@ export class InMemoryUserRepository implements IUserRepository {
       user.id,
       updateData.username ?? user.username,
       updateData.email ?? user.email,
+      updateData.password ?? user.password,
+      updateData.avatarUrl ?? user.avatarUrl,
       updateData.role ?? user.role,
       user.githubId ?? user.githubId,
       user.googleId ?? user.googleId,
       user.createdAt,
-      updateData.avatarUrl ?? user.avatarUrl,
-      updateData.password ?? user.password,
     );
 
     const index = this.users.findIndex((u) => u.id === userId);

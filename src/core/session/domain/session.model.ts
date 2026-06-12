@@ -1,8 +1,5 @@
-import { UserSource } from 'src/core/user/domain/user.model';
-
 export class SessionModel {
   private readonly _id: string;
-  private readonly _provider: UserSource;
   private readonly _userAgent: string;
   private readonly _userId: string;
   private readonly _expires: string;

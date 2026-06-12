@@ -1,7 +1,7 @@
+import { Users as PrismaUser } from '@prisma/client';
 import { UserModel } from 'src/core/user/domain/user.model';
 import { UserResponseDto } from '../../dto/user-response.dto';
-
-import { Users } from '@prisma/client';
+import { CreateUserDto } from '../../dto/create-user.dto';
 
 export class UserMapper {
   static toResponse(user: UserModel): UserResponseDto {
@@ -9,22 +9,40 @@ export class UserMapper {
       id: user.id,
       username: user.username,
       email: user.email,
-      avatarUrl: user.avatarUrl || null,
+      avatarUrl: user.avatarUrl,
       createdAt: user.createdAt,
     };
   }
 
-  static toDomain(entity: Users): UserModel {
+  static toModelFromDto(
+    id: string,
+    dto: CreateUserDto,
+    hashedPassword: string | null = null,
+  ): UserModel {
+    return new UserModel(
+      id,
+      dto.username,
+      dto.email,
+      hashedPassword,
+      null,
+      'user',
+      null,
+      null,
+      new Date(),
+    );
+  }
+
+  static toDomain(entity: PrismaUser): UserModel {
     return new UserModel(
       entity.id,
       entity.username,
       entity.email,
+      entity.password,
+      entity.avatarUrl,
       entity.role,
       entity.githubId,
       entity.googleId,
       entity.createdAt,
-      entity.avatarUrl,
-      entity.password,
     );
   }
 }

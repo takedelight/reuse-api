@@ -8,9 +8,9 @@ export interface IUserRepository {
   getUserById(userId: string): Promise<UserModel | null>;
   getUserByEmail(email: string): Promise<UserModel | null>;
 
-  createUser(user: Partial<UserModel>): Promise<UserModel>;
+  createUser(user: UserModel): Promise<UserModel>;
   updateUser(userId: string, user: Partial<UserModel>): Promise<UserModel>;
   deleteUser(userId: string): Promise<void>;
 
-  upsertOAuthUser(profile: OAuthProfileDto): Promise<UserModel>;
+  upsertOAuthUser(userId: string, profile: OAuthProfileDto): Promise<UserModel>;
 }

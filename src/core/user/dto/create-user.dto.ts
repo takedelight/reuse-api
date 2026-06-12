@@ -1,13 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsEmail,
-  IsIn,
-  IsOptional,
-  IsString,
-  IsUrl,
-  MinLength,
-} from 'class-validator';
-import { type UserSource } from '../domain/user.model';
+import { IsEmail, IsOptional, IsString, MinLength } from 'class-validator';
 
 export class CreateUserDto {
   @ApiProperty({ type: String, minLength: 4 })
@@ -21,21 +13,6 @@ export class CreateUserDto {
   )
   @ApiProperty({ type: String, format: 'email' })
   email: string;
-
-  @IsOptional()
-  @IsIn(['credentials', 'google', 'github'], {
-    message: 'Некоректне джерело реєстрації користувача',
-  })
-  @ApiProperty({
-    enumName: 'UserSource',
-    enum: ['credentials', 'google', 'github'],
-  })
-  provider?: UserSource;
-
-  @IsUrl({}, { message: 'Посилання на аватар має бути валідною URL-адресою' })
-  @IsOptional()
-  @ApiProperty({ required: false, type: String, format: 'url' })
-  avatarUrl?: string;
 
   @IsString({ message: 'Пароль має бути рядком' })
   @IsOptional()
