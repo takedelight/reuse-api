@@ -1,3 +1,5 @@
+import { UserModel } from '../../user/domain/user.model';
+
 export class PostModel {
   private readonly _id: string;
   private readonly _slug: string;
@@ -6,9 +8,11 @@ export class PostModel {
   private readonly _content: string;
   private readonly _createdAt: Date;
   private readonly _updatedAt: Date;
+  private readonly _user: UserModel | null = null;
 
   constructor(
     id: string,
+    user: UserModel | null = null,
     slug: string,
     isPublished: boolean,
     title: string,
@@ -23,6 +27,7 @@ export class PostModel {
     this._content = content;
     this._createdAt = createdAt;
     this._updatedAt = updatedAt;
+    this._user = user;
   }
 
   get id(): string {
@@ -51,5 +56,9 @@ export class PostModel {
 
   get updatedAt(): Date {
     return this._updatedAt;
+  }
+
+  get user(): UserModel | null {
+    return this._user;
   }
 }

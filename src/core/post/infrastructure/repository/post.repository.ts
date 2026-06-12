@@ -9,21 +9,31 @@ export class PostRepository implements IPostRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async findAll(): Promise<PostModel[]> {
-    const posts = await this.prisma.post.findMany();
+    const posts = await this.prisma.post.findMany({
+      include: {
+        user: true,
+      },
+    });
 
-    return posts.map((p) => PostMapper.toDomain(p));
+    return posts.map((p) => PostMapper.toDomainFromEntity(p));
   }
 
   async findById(postId: string): Promise<PostModel | null> {
-    const post = await this.prisma.post.findUnique({ where: { id: postId } });
+    const post = await this.prisma.post.findUnique({
+      where: { id: postId },
+      include: { user: true },
+    });
 
-    return post ? PostMapper.toDomain(post) : null;
+    return post ? PostMapper.toDomainFromEntity(post) : null;
   }
 
   async findBySlug(slug: string): Promise<PostModel | null> {
-    const post = await this.prisma.post.findUnique({ where: { slug: slug } });
+    const post = await this.prisma.post.findUnique({
+      where: { slug: slug },
+      include: { user: true },
+    });
 
-    return post ? PostMapper.toDomain(post) : null;
+    return post ? PostMapper.toDomainFromEntity(post) : null;
   }
 
   async createPost(userId: string, post: PostModel): Promise<PostModel> {
@@ -36,9 +46,12 @@ export class PostRepository implements IPostRepository {
         isPublished: post.isPublished,
         userId: userId,
       },
+      include: {
+        user: true,
+      },
     });
 
-    return PostMapper.toDomain(createdPost);
+    return PostMapper.toDomainFromEntity(createdPost);
   }
 
   async updatePost(post: PostModel): Promise<PostModel> {
@@ -50,9 +63,12 @@ export class PostRepository implements IPostRepository {
         content: post.content,
         isPublished: post.isPublished,
       },
+      include: {
+        user: true,
+      },
     });
 
-    return PostMapper.toDomain(updatedPost);
+    return PostMapper.toDomainFromEntity(updatedPost);
   }
 
   async deletePost(postId: string): Promise<void> {

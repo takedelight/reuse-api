@@ -1,5 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { type IPostRepository, POST_REPOSITORY_TOKEN, } from './domain/post.repository.interface';
+import {
+  type IPostRepository,
+  POST_REPOSITORY_TOKEN,
+} from './domain/post.repository.interface';
 import { CreatePostDto } from './dto/create-post.dto';
 import { PostMapper } from './infrastructure/mapper/post.mapper';
 import { UpdatePostDto } from './dto/update-post.dto';
@@ -12,7 +15,9 @@ export class PostService {
   ) {}
 
   async findAll() {
-    return await this.postRepository.findAll();
+    const posts = await this.postRepository.findAll();
+
+    return posts.map((post) => PostMapper.toResponse(post));
   }
 
   async findById(postId: string) {
