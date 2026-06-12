@@ -39,14 +39,13 @@ model Users {
 }
 
 model Post {
-  id String @id @default(uuid())
+  id    String @id @unique
+  title String
 
   slug String? @unique
 
+  content     String
   isPublished Boolean @default(false) @map("is_published")
-
-  title   String
-  content String
 
   user   Users?  @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String? @map("users_id")
