@@ -7,6 +7,7 @@ import { SessionMapper } from '../mapper/session.mapper';
 @Injectable()
 export class SessionRepository implements ISessionRepository {
   constructor(private readonly prisma: PrismaService) {}
+
   async getAllUserSessions(userId: string): Promise<SessionModel[]> {
     const sessions = await this.prisma.session.findMany({
       where: {
@@ -37,6 +38,17 @@ export class SessionRepository implements ISessionRepository {
           id: userId,
         },
         id: { not: currentSessionId },
+      },
+    });
+  }
+
+  async linkSessionToUser(sid: string, userId: string): Promise<void> {
+    await this.prisma.session.updateMany({
+      where: {
+        sid,
+      },
+      data: {
+        usersId: userId,
       },
     });
   }

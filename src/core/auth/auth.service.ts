@@ -22,6 +22,10 @@ import { OAuthProfileDto } from './dto/oauth-response.dto';
 import { RegisterDto } from './dto/register.dto';
 import { UserMapper } from '../user/infrastructure/mapper/user.mapper';
 import { v7 as uuidv7 } from 'uuid';
+import {
+  type ISessionRepository,
+  SESSION_REPOSITORY_TOKEN,
+} from '../session/domain/session.repository.interface';
 
 @Injectable()
 export class AuthService {
@@ -30,6 +34,8 @@ export class AuthService {
     private readonly userRepository: IUserRepository,
     @Inject(USER_AGENT_PARSER_TOKEN)
     private readonly userAgentParser: IUserAgentParserRepository,
+    @Inject(SESSION_REPOSITORY_TOKEN)
+    private readonly sessionRepository: ISessionRepository,
     private readonly configService: ConfigService,
   ) {}
 
@@ -98,7 +104,7 @@ export class AuthService {
     req.session.userAgent = userAgentInfo;
     req.session.role = user.role;
 
-    return new Promise<void>((resolve, reject) => {
+    await new Promise<void>((resolve, reject) => {
       req.session.save((err) => {
         if (err instanceof Error) {
           reject(err);
@@ -107,5 +113,7 @@ export class AuthService {
         }
       });
     });
+
+    await this.sessionRepository.linkSessionToUser(req.sessionID, user.id);
   }
 }
