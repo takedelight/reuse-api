@@ -1,17 +1,10 @@
-import {
-  ConflictException,
-  Inject,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { hash } from 'argon2';
-import { OAuthProfileDto } from '../auth/dto/oauth-response.dto';
 import { UserModel } from './domain/user.model';
 import {
-  USER_REPOSITORY_TOKEN,
   type IUserRepository,
+  USER_REPOSITORY_TOKEN,
 } from './domain/user.repository.interface';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserResponseDto } from './dto/user-response.dto';
 import { UserMapper } from './infrastructure/mapper/user.mapper';
@@ -49,24 +42,6 @@ export class UserService {
     return UserMapper.toResponse(user);
   }
 
-  async createUser(dto: CreateUserDto): Promise<UserModel> {
-    const existingUser = await this.userRepository.getUserByEmail(dto.email);
-    if (existingUser) {
-      throw new ConflictException('Користувач з таким email вже існує');
-    }
-
-    let hashedPassword: string | undefined;
-
-    if (dto.password) {
-      hashedPassword = await hash(dto.password);
-    }
-
-    return this.userRepository.createUser({
-      ...dto,
-      password: hashedPassword,
-    });
-  }
-
   async updateUser(
     userId: string,
     dto: UpdateUserDto,
@@ -89,10 +64,6 @@ export class UserService {
     );
 
     return UserMapper.toResponse(updatedUser);
-  }
-
-  async upsertUser(profile: OAuthProfileDto): Promise<UserModel> {
-    return await this.userRepository.upsertOAuthUser(profile);
   }
 
   async deleteUser(userId: string): Promise<void> {

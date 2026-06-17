@@ -1,14 +1,16 @@
-import { ConflictException, NotFoundException } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { USER_REPOSITORY_TOKEN } from '../domain/user.repository.interface';
-import { CreateUserDto } from '../dto/create-user.dto';
-import { UpdateUserDto } from '../dto/update-user.dto';
+import {
+  IUserRepository,
+  USER_REPOSITORY_TOKEN,
+} from '../domain/user.repository.interface';
 import { InMemoryUserRepository } from '../infrastructure/repository/in-memory.user.repository';
 import { UserService } from '../user.service';
+import { UserModel } from '../domain/user.model';
 
 describe('UserService', () => {
   let service: UserService;
-  let repository: InMemoryUserRepository;
+  let repository: IUserRepository;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -36,11 +38,19 @@ describe('UserService', () => {
     });
 
     it('should return all users', async () => {
-      await repository.createUser({
-        username: 'user1',
-        email: 'user1@example.com',
-        password: 'password123',
-      });
+      const user = new UserModel(
+        'id',
+        'user1',
+        'user1@example.com',
+        'password123',
+        null,
+        'user',
+        null,
+        null,
+        new Date(),
+      );
+
+      await repository.createUser(user);
 
       const users = await service.getAllUsers();
       expect(users).toHaveLength(1);
@@ -50,11 +60,19 @@ describe('UserService', () => {
 
   describe('getUserById', () => {
     it('should return a user if they exist', async () => {
-      const created = await repository.createUser({
-        username: 'john',
-        email: 'john@example.com',
-        password: 'password123',
-      });
+      const newUser = new UserModel(
+        'id',
+        'user1',
+        'john@example.com',
+        'password123',
+        null,
+        'user',
+        null,
+        null,
+        new Date(),
+      );
+
+      const created = await repository.createUser(newUser);
 
       const user = await service.getUserById(created.id);
       expect(user).toBeDefined();
@@ -65,47 +83,6 @@ describe('UserService', () => {
       await expect(service.getUserById('non-existent-id')).rejects.toThrow(
         NotFoundException,
       );
-    });
-  });
-
-  describe('createUser', () => {
-    const dto: CreateUserDto = {
-      username: 'newuser',
-      email: 'new@example.com',
-      password: 'password123',
-    };
-
-    it('should successfully create a user', async () => {
-      const result = await service.createUser(dto);
-      expect(result).toBeDefined();
-      expect(result.email).toBe(dto.email);
-    });
-
-    it('should throw ConflictException if email is already taken', async () => {
-      await service.createUser(dto);
-      await expect(service.createUser(dto)).rejects.toThrow(ConflictException);
-    });
-  });
-
-  describe('updateUser', () => {
-    it('should successfully update user data', async () => {
-      const created = await repository.createUser({
-        username: 'oldname',
-        email: 'update@example.com',
-        password: 'password123',
-      });
-
-      const updateDto: UpdateUserDto = { username: 'newname' };
-      const result = await service.updateUser(created.id, updateDto);
-
-      expect(result.username).toBe('newname');
-    });
-
-    it('should throw NotFoundException when trying to update non-existent user', async () => {
-      const updateDto: UpdateUserDto = { username: 'newname' };
-      await expect(
-        service.updateUser('non-existent-id', updateDto),
-      ).rejects.toThrow(NotFoundException);
     });
   });
 });

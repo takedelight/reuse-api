@@ -7,6 +7,8 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { PostMapper } from './infrastructure/mapper/post.mapper';
 import { UpdatePostDto } from './dto/update-post.dto';
 
+import { v7 as uuidv7 } from 'uuid';
+
 @Injectable()
 export class PostService {
   constructor(
@@ -29,7 +31,7 @@ export class PostService {
   }
 
   async create(userId: string, dto: CreatePostDto) {
-    const postId = crypto.randomUUID();
+    const postId = uuidv7();
 
     const post = PostMapper.toDomainFromDto(postId, dto);
 

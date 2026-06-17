@@ -39,7 +39,7 @@ export class PostRepository implements IPostRepository {
   async createPost(userId: string, post: PostModel): Promise<PostModel> {
     const createdPost = await this.prisma.post.create({
       data: {
-        id: post.id ?? undefined,
+        id: post.id,
         slug: post.slug,
         title: post.title,
         content: post.content,

@@ -20,6 +20,12 @@ import {
 import { LoginDto } from './dto/login.dto';
 import { OAuthProfileDto } from './dto/oauth-response.dto';
 import { RegisterDto } from './dto/register.dto';
+import { UserMapper } from '../user/infrastructure/mapper/user.mapper';
+import { v7 as uuidv7 } from 'uuid';
+import {
+  type ISessionRepository,
+  SESSION_REPOSITORY_TOKEN,
+} from '../session/domain/session.repository.interface';
 
 @Injectable()
 export class AuthService {
@@ -28,6 +34,8 @@ export class AuthService {
     private readonly userRepository: IUserRepository,
     @Inject(USER_AGENT_PARSER_TOKEN)
     private readonly userAgentParser: IUserAgentParserRepository,
+    @Inject(SESSION_REPOSITORY_TOKEN)
+    private readonly sessionRepository: ISessionRepository,
     private readonly configService: ConfigService,
   ) {}
 
@@ -37,12 +45,13 @@ export class AuthService {
     if (existingUser)
       throw new ConflictException('Користувач з таким email вже існує');
 
-    const hashedPassword = dto.password && (await hash(dto.password));
+    const hashedPassword = dto.password ? await hash(dto.password) : null;
 
-    const user = await this.userRepository.createUser({
-      ...dto,
-      password: hashedPassword,
-    });
+    const id = uuidv7();
+
+    const newUser = UserMapper.toModelFromDto(id, dto, hashedPassword);
+
+    const user = await this.userRepository.createUser(newUser);
 
     await this.establishSession(user, req);
   }
@@ -79,7 +88,9 @@ export class AuthService {
   }
 
   async upsertOAuthUser(profile: OAuthProfileDto, req: Request): Promise<void> {
-    const user = await this.userRepository.upsertOAuthUser(profile);
+    const id = uuidv7();
+
+    const user = await this.userRepository.upsertOAuthUser(id, profile);
 
     await this.establishSession(user, req);
   }
@@ -93,7 +104,7 @@ export class AuthService {
     req.session.userAgent = userAgentInfo;
     req.session.role = user.role;
 
-    return new Promise<void>((resolve, reject) => {
+    await new Promise<void>((resolve, reject) => {
       req.session.save((err) => {
         if (err instanceof Error) {
           reject(err);
@@ -102,5 +113,7 @@ export class AuthService {
         }
       });
     });
+
+    await this.sessionRepository.linkSessionToUser(req.sessionID, user.id);
   }
 }

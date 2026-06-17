@@ -10,7 +10,10 @@ import { UserMapper } from '../mapper/user.mapper';
 export class UserRepository implements IUserRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async upsertOAuthUser(profile: OAuthProfileDto): Promise<UserModel> {
+  async upsertOAuthUser(
+    userId: string,
+    profile: OAuthProfileDto,
+  ): Promise<UserModel> {
     let user: Users | null = null;
 
     if (profile.provider === 'github') {
@@ -57,6 +60,7 @@ export class UserRepository implements IUserRepository {
 
     const createdUser = await this.prisma.users.create({
       data: {
+        id: userId,
         email: profile.email,
         username: profile.username,
         avatarUrl: profile.avatarUrl,
@@ -64,6 +68,8 @@ export class UserRepository implements IUserRepository {
         googleId: profile.provider === 'google' ? profile.googleId : null,
       },
     });
+
+    console.log(createdUser);
 
     return UserMapper.toDomain(createdUser);
   }
@@ -94,17 +100,20 @@ export class UserRepository implements IUserRepository {
     return user ? UserMapper.toDomain(user) : null;
   }
 
-  async createUser(userData: Partial<UserModel>): Promise<UserModel> {
+  async createUser(userData: UserModel): Promise<UserModel> {
     const createdUser = await this.prisma.users.create({
       data: {
-        username: userData.username!,
-        email: userData.email!,
+        id: userData.id,
+        username: userData.username,
+        email: userData.email,
         password: userData.password ?? null,
         avatarUrl: userData.avatarUrl ?? null,
         githubId: null,
         googleId: null,
       },
     });
+
+    console.log(createdUser);
 
     return UserMapper.toDomain(createdUser);
   }
