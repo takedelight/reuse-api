@@ -8,6 +8,11 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { hash, verify } from 'argon2';
 import { type Request, type Response } from 'express';
+import { v7 as uuidv7 } from 'uuid';
+import {
+  type ISessionRepository,
+  SESSION_REPOSITORY_TOKEN,
+} from '../session/domain/session.repository.interface';
 import {
   type IUserAgentParserRepository,
   USER_AGENT_PARSER_TOKEN,
@@ -17,15 +22,10 @@ import {
   type IUserRepository,
   USER_REPOSITORY_TOKEN,
 } from '../user/domain/user.repository.interface';
+import { UserMapper } from '../user/infrastructure/mapper/user.mapper';
 import { LoginDto } from './dto/login.dto';
 import { OAuthProfileDto } from './dto/oauth-response.dto';
 import { RegisterDto } from './dto/register.dto';
-import { UserMapper } from '../user/infrastructure/mapper/user.mapper';
-import { v7 as uuidv7 } from 'uuid';
-import {
-  type ISessionRepository,
-  SESSION_REPOSITORY_TOKEN,
-} from '../session/domain/session.repository.interface';
 
 @Injectable()
 export class AuthService {
@@ -85,6 +85,22 @@ export class AuthService {
         }
       });
     });
+  }
+
+  async getCurrentUser(req: Request) {
+    const userId = req.session.userId;
+
+    if (!userId) {
+      throw new UnauthorizedException();
+    }
+
+    const user = await this.userRepository.getUserById(userId);
+
+    if (!user) {
+      throw new UnauthorizedException('Користувача не знайдено');
+    }
+
+    return UserMapper.toResponse(user);
   }
 
   async upsertOAuthUser(profile: OAuthProfileDto, req: Request): Promise<void> {
