@@ -69,8 +69,6 @@ export class UserRepository implements IUserRepository {
       },
     });
 
-    console.log(createdUser);
-
     return UserMapper.toDomain(createdUser);
   }
 
@@ -112,8 +110,6 @@ export class UserRepository implements IUserRepository {
         googleId: null,
       },
     });
-
-    console.log(createdUser);
 
     return UserMapper.toDomain(createdUser);
   }

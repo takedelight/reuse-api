@@ -43,7 +43,7 @@ export class AuthService {
     const existingUser = await this.userRepository.getUserByEmail(dto.email);
 
     if (existingUser)
-      throw new ConflictException('Користувач з таким email вже існує');
+      throw new ConflictException('errors.server.user_already_exists');
 
     const hashedPassword = dto.password ? await hash(dto.password) : null;
 
@@ -60,12 +60,14 @@ export class AuthService {
     const user = await this.userRepository.getUserByEmail(dto.email);
 
     if (!user || !user.password)
-      throw new NotFoundException('Невірний email або пароль.');
+      throw new NotFoundException('errors.server.user_not_found');
 
     const isPasswordValid = await verify(user.password, dto.password);
 
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Невірний email або пароль.');
+      throw new UnauthorizedException(
+        'errors.server.invalid_credentials_error',
+      );
     }
 
     await this.establishSession(user, req);
