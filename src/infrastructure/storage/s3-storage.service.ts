@@ -18,20 +18,19 @@ export class S3StorageService implements IStorageService {
 
   constructor(private readonly configService: ConfigService) {
     this.s3Client = new S3Client({
-      endpoint: this.configService.getOrThrow<string>('storage.endpoint'),
-      region: this.configService.getOrThrow<string>('storage.region'),
+      endpoint: this.configService.getOrThrow<string>('STORAGE_ENDPOINT'),
+      region: this.configService.getOrThrow<string>('STORAGE_REGION'),
       credentials: {
-        accessKeyId: this.configService.getOrThrow<string>(
-          'storage.accessKeyId',
-        ),
-        secretAccessKey: this.configService.getOrThrow<string>(
-          'storage.secretAccessKey',
-        ),
+        accessKeyId:
+          this.configService.getOrThrow<string>('STORAGE_ACCESS_KEY'),
+        secretAccessKey:
+          this.configService.getOrThrow<string>('STORAGE_SECRET_KEY'),
       },
       forcePathStyle: true,
     });
-    this.bucketName =
-      this.configService.getOrThrow<string>('storage.bucketName');
+    this.bucketName = this.configService.getOrThrow<string>(
+      'STORAGE_BUCKET_NAME',
+    );
   }
 
   async getUploadUrl(
