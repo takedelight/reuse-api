@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsString } from 'class-validator';
+import { IsBoolean, IsEmail, IsOptional, IsString } from 'class-validator';
 
 export class LoginDto {
   @IsEmail({}, { message: 'Невірний формат електронної пошти' })
@@ -9,4 +9,8 @@ export class LoginDto {
   @IsString({ message: "Пароль є обов'язковим полем" })
   @ApiProperty()
   password: string;
+
+  @IsBoolean()
+  @IsOptional()
+  isRememberMe?: boolean;
 }

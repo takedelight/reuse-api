@@ -27,7 +27,6 @@ export class OAuthController {
   @Get('google/callback')
   @UseGuards(GoogleGuard)
   async googleCallback(@Req() req: Request): Promise<void> {
-    console.log(req.user);
     return await this.authService.upsertOAuthUser(req.user, req);
   }
 }

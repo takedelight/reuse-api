@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, Res } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiConflictResponse,
@@ -58,5 +58,16 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ): Promise<void> {
     return await this.authService.logout(req, res);
+  }
+
+  @Get('me')
+  @ApiOperation({
+    summary: 'Отримати інформацію про поточного користувача',
+    description: 'Повертає інформацію про авторизованого користувача.',
+  })
+  @ApiOkResponse({ description: 'Інформація про користувача' })
+  @ApiUnauthorizedResponse({ description: 'Користувач не авторизований' })
+  async getCurrentUser(@Req() req: Request) {
+    return await this.authService.getCurrentUser(req);
   }
 }
