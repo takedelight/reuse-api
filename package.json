@@ -99,8 +99,15 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node",
+    "moduleDirectories": [
+      "node_modules",
+      "<rootDir>"
+    ],
     "moduleNameMapper": {
       "^src/(.*)$": "<rootDir>/$1"
-    }
+    },
+    "transformIgnorePatterns": [
+      "node_modules/\\.pnpm/(?!uuid)"
+    ]
   }
 }

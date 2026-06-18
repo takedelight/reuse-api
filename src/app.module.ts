@@ -4,10 +4,10 @@ import { LoggerModule } from 'nestjs-pino/LoggerModule';
 import { UserModule } from 'src/core/user/user.module';
 import { pinoConfig } from 'src/infrastructure/logger/pino.config';
 import { AuthModule } from './core/auth/auth.module';
+import { PostModule } from './core/post/post.module';
 import { SessionModule } from './core/session/session.module';
 import { PrismaModule } from './infrastructure/database/prisma.module';
 import { PrismaService } from './infrastructure/database/prisma.service';
-import { PostModule } from './core/post/post.module';
 
 @Module({
   imports: [

@@ -1,5 +1,6 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { hash } from 'argon2';
+import { S3StorageService } from 'src/infrastructure/storage/s3-storage.service';
 import { UserModel } from './domain/user.model';
 import {
   type IUserRepository,
@@ -14,6 +15,7 @@ export class UserService {
   constructor(
     @Inject(USER_REPOSITORY_TOKEN)
     private readonly userRepository: IUserRepository,
+    private readonly storageService: S3StorageService,
   ) {}
 
   async getAllUsers(): Promise<UserResponseDto[]> {
@@ -64,6 +66,31 @@ export class UserService {
     );
 
     return UserMapper.toResponse(updatedUser);
+  }
+
+  async generateAvatarUploadUrl(
+    userId: string,
+    fileName: string,
+    contentType: string,
+  ) {
+    const folder = `avatars/${userId}`;
+    return this.storageService.getUploadUrl(folder, fileName, contentType);
+  }
+
+  async confirmAvatarUpload(userId: string, key: string) {
+    const avatarUrl = await this.storageService.getDownloadUrl(key);
+
+    await this.userRepository.updateUser(userId, { avatarUrl });
+  }
+
+  async deleteAvatar(userId: string) {
+    const user = await this.userRepository.getUserById(userId);
+
+    if (!user) {
+      throw new NotFoundException(`Користувач з id ${userId} не існує`);
+    }
+
+    await this.userRepository.updateUser(userId, { avatarUrl: null });
   }
 
   async deleteUser(userId: string): Promise<void> {

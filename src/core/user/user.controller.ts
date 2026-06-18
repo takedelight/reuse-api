@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Patch } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Patch, Post } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBody,
@@ -72,5 +72,30 @@ export class UserController {
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<UserResponseDto> {
     return this.userService.updateUser(userId, updateUserDto);
+  }
+
+  @Post('upload-url')
+  async getUploadUrl(
+    @CurrentUser() userId: string,
+    @Body() dto: { fileName: string; contentType: string },
+  ) {
+    return this.userService.generateAvatarUploadUrl(
+      userId,
+      dto.fileName,
+      dto.contentType,
+    );
+  }
+
+  @Post('confirm')
+  async confirmUpload(
+    @CurrentUser() userId: string,
+    @Body() dto: { key: string },
+  ) {
+    return this.userService.confirmAvatarUpload(userId, dto.key);
+  }
+
+  @Delete('avatar')
+  async deleteAvatar(@CurrentUser() userId: string) {
+    return this.userService.deleteAvatar(userId);
   }
 }
