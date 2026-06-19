@@ -30,6 +30,7 @@ export class InMemoryUserRepository implements IUserRepository {
       const updatedUser = new UserModel(
         user.id,
         profile.username,
+        null,
         user.email,
         user.password,
         profile.avatarUrl ?? user.avatarUrl,
@@ -48,6 +49,7 @@ export class InMemoryUserRepository implements IUserRepository {
     const newUser = new UserModel(
       crypto.randomUUID(),
       profile.username,
+      null,
       profile.email,
       null,
       profile.avatarUrl ?? null,
@@ -80,6 +82,7 @@ export class InMemoryUserRepository implements IUserRepository {
     const newUser = new UserModel(
       userData.id ?? crypto.randomUUID(),
       userData.username,
+      null,
       userData.email,
       userData.password ?? null,
       userData.avatarUrl ?? null,
@@ -109,6 +112,7 @@ export class InMemoryUserRepository implements IUserRepository {
     const updatedUser = new UserModel(
       user.id,
       updateData.username ?? user.username,
+      null,
       updateData.email ?? user.email,
       updateData.password ?? user.password,
       updateData.avatarUrl ?? user.avatarUrl,

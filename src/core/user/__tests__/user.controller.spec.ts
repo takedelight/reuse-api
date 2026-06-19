@@ -15,6 +15,7 @@ describe('UserController', () => {
     return new UserModel(
       id,
       username,
+      'This is a mock bio',
       `${username}@example.com`,
       'password123',
       null,

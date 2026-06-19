@@ -1,7 +1,7 @@
 import { Users as PrismaUser } from '@prisma/client';
 import { UserModel } from 'src/core/user/domain/user.model';
-import { UserResponseDto } from '../../dto/user-response.dto';
 import { CreateUserDto } from '../../dto/create-user.dto';
+import { UserResponseDto } from '../../dto/user-response.dto';
 
 export class UserMapper {
   static toResponse(user: UserModel): UserResponseDto {
@@ -22,6 +22,7 @@ export class UserMapper {
     return new UserModel(
       id,
       dto.username,
+      dto.bio,
       dto.email,
       hashedPassword,
       null,
@@ -36,6 +37,7 @@ export class UserMapper {
     return new UserModel(
       entity.id,
       entity.username,
+      entity.bio,
       entity.email,
       entity.password,
       entity.avatarUrl,

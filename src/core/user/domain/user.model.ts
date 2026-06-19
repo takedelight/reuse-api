@@ -6,6 +6,7 @@ export class UserModel {
   constructor(
     id: string,
     private readonly _username: string,
+    private readonly _bio: string | null,
     private readonly _email: string,
     password: string | null,
     private readonly _avatarUrl: string | null,
@@ -46,6 +47,10 @@ export class UserModel {
 
   get avatarUrl(): string | null {
     return this._avatarUrl;
+  }
+
+  get bio(): string | null {
+    return this._bio;
   }
 
   get isAdmin(): boolean {
