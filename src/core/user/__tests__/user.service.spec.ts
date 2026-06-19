@@ -48,6 +48,7 @@ describe('UserService', () => {
       const user = new UserModel(
         'id',
         'user1',
+        'This is a mock bio',
         'user1@example.com',
         'password123',
         null,
@@ -70,6 +71,7 @@ describe('UserService', () => {
       const newUser = new UserModel(
         'id',
         'user1',
+        null,
         'john@example.com',
         'password123',
         null,

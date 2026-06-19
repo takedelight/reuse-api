@@ -14,6 +14,10 @@ export class CreateUserDto {
   @ApiProperty({ type: String, format: 'email' })
   email: string;
 
+  @IsString({ message: 'Опис має бути рядком' })
+  @IsOptional()
+  bio: string | null;
+
   @IsString({ message: 'Пароль має бути рядком' })
   @IsOptional()
   @ApiProperty({ required: false, type: String, minLength: 8 })

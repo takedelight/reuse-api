@@ -125,6 +125,7 @@ export class UserRepository implements IUserRepository {
       data: {
         username: updateData.username,
         email: updateData.email,
+        bio: updateData.bio,
         password: updateData.password,
         avatarUrl: updateData.avatarUrl,
         role: updateData.role,
