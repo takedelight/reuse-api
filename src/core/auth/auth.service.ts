@@ -39,7 +39,7 @@ export class AuthService {
     private readonly configService: ConfigService,
   ) {}
 
-  async register(dto: RegisterDto, req: Request): Promise<void> {
+  async register(dto: RegisterDto, req: Request, res: Response): Promise<void> {
     const existingUser = await this.userRepository.getUserByEmail(dto.email);
 
     if (existingUser)
@@ -54,9 +54,11 @@ export class AuthService {
     const user = await this.userRepository.createUser(newUser);
 
     await this.establishSession(user, req);
+
+    res.redirect(this.configService.getOrThrow('CROSS_ORIGIN'));
   }
 
-  async login(dto: LoginDto, req: Request): Promise<void> {
+  async login(dto: LoginDto, req: Request, res: Response): Promise<void> {
     const user = await this.userRepository.getUserByEmail(dto.email);
 
     if (!user || !user.password)
@@ -71,6 +73,8 @@ export class AuthService {
     }
 
     await this.establishSession(user, req);
+
+    res.redirect(this.configService.getOrThrow('CROSS_ORIGIN'));
   }
 
   async logout(req: Request, res: Response): Promise<void> {

@@ -32,8 +32,12 @@ export class AuthController {
   @ApiConflictResponse({
     description: 'Користувач з таким email або username вже існує',
   })
-  async register(@Body() dto: RegisterDto, @Req() req: Request): Promise<void> {
-    return await this.authService.register(dto, req);
+  async register(
+    @Body() dto: RegisterDto,
+    @Req() req: Request,
+    @Res() res: Response,
+  ): Promise<void> {
+    return await this.authService.register(dto, req, res);
   }
 
   @Post('login')
@@ -43,8 +47,12 @@ export class AuthController {
   })
   @ApiOkResponse({ description: 'Успішний вхід' })
   @ApiUnauthorizedResponse({ description: 'Невірний логін або пароль' })
-  async login(@Body() dto: LoginDto, @Req() req: Request): Promise<void> {
-    return await this.authService.login(dto, req);
+  async login(
+    @Body() dto: LoginDto,
+    @Req() req: Request,
+    @Res() res: Response,
+  ): Promise<void> {
+    return await this.authService.login(dto, req, res);
   }
 
   @Post('logout')
