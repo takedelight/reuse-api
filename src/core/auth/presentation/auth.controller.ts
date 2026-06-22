@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   Headers,
   HttpCode,
   HttpStatus,
@@ -78,6 +79,13 @@ export class AuthController {
     const sessionId = req.user?.sessionId;
     await this.authService.logout(sessionId ?? '');
     this.clearAuthCookies(res);
+  }
+
+  @Get('profile')
+  @HttpCode(HttpStatus.OK)
+  async getProfile(@Req() req: Request) {
+    const userId = req.user?.sub;
+    return await this.authService.getUserProfile(userId ?? '');
   }
 
   private setAuthCookies(
