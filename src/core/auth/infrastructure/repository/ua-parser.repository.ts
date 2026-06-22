@@ -3,7 +3,7 @@ import { UAParser } from 'ua-parser-js';
 import {
   IUserAgentInfo,
   IUserAgentParserRepository,
-} from '../../domain/ua-parser.interface';
+} from '../../domain/interfaces/ua-parser.interface';
 
 @Injectable()
 export class UserAgentParserRepository implements IUserAgentParserRepository {
@@ -14,7 +14,6 @@ export class UserAgentParserRepository implements IUserAgentParserRepository {
     return {
       browser: result.browser.name || 'Unknown Browser',
       os: result.os.name || 'Unknown OS',
-      deviceType: result.device.type || 'desktop',
     };
   }
 }
