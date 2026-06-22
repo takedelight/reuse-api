@@ -85,6 +85,9 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async getProfile(@Req() req: Request) {
     const userId = req.user?.sub;
+
+    console.log(req.user);
+
     return await this.authService.getUserProfile(userId ?? '');
   }
 
