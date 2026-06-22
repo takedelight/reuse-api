@@ -24,7 +24,7 @@ export class AuthGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest<Request>();
 
-    if (!request.session || !request.session.userId) {
+    if (!request.user) {
       throw new UnauthorizedException('Сесія застаріла або ви не авторизовані');
     }
 

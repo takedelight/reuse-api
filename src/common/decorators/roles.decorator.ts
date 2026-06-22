@@ -1,5 +1,5 @@
 import { SetMetadata } from '@nestjs/common';
-import { UserRole } from 'src/core/user/domain/user.model';
+import { UserRole } from 'src/core/user/domain/models/user.model';
 
 export const ROLES_KEY = 'roles';
 
