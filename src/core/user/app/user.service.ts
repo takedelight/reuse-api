@@ -1,11 +1,11 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { hash } from 'argon2';
 import { S3StorageService } from 'src/infrastructure/storage/s3-storage.service';
-import { UserModel } from '../domain/user.model';
 import {
   type IUserRepository,
   USER_REPOSITORY_TOKEN,
-} from '../domain/user.repository.interface';
+} from '../domain/interfaces/user.repository.interface';
+import { UserModel } from '../domain/models/user.model';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { UserResponseDto } from '../dto/user-response.dto';
 import { UserMapper } from '../infrastructure/mapper/user.mapper';

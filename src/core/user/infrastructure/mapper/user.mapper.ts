@@ -1,5 +1,5 @@
-import { Users as PrismaUser } from '@prisma/client';
-import { UserModel } from 'src/core/user/domain/user.model';
+import { User as PrismaUser } from '@prisma/client';
+import { UserModel } from 'src/core/user/domain/models/user.model';
 import { CreateUserDto } from '../../dto/create-user.dto';
 import { UserResponseDto } from '../../dto/user-response.dto';
 

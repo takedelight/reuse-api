@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { Users } from '@prisma/client';
+import { User } from '@prisma/client';
 import { OAuthProfileDto } from 'src/core/auth/dto/oauth-response.dto';
 import { PrismaService } from 'src/infrastructure/database/prisma.service';
-import { UserModel } from '../../domain/user.model';
-import { IUserRepository } from '../../domain/user.repository.interface';
+import { IUserRepository } from '../../domain/interfaces/user.repository.interface';
+import { UserModel } from '../../domain/models/user.model';
 import { UserMapper } from '../mapper/user.mapper';
 
 @Injectable()
@@ -14,10 +14,10 @@ export class UserRepository implements IUserRepository {
     userId: string,
     profile: OAuthProfileDto,
   ): Promise<UserModel> {
-    let user: Users | null = null;
+    let user: User | null = null;
 
     if (profile.provider === 'github') {
-      user = await this.prisma.users.findUnique({
+      user = await this.prisma.user.findUnique({
         where: {
           githubId: profile.githubId,
         },
@@ -25,7 +25,7 @@ export class UserRepository implements IUserRepository {
     }
 
     if (profile.provider === 'google') {
-      user = await this.prisma.users.findUnique({
+      user = await this.prisma.user.findUnique({
         where: {
           googleId: profile.googleId,
         },
@@ -33,7 +33,7 @@ export class UserRepository implements IUserRepository {
     }
 
     if (!user) {
-      user = await this.prisma.users.findUnique({
+      user = await this.prisma.user.findUnique({
         where: {
           email: profile.email,
         },
@@ -41,7 +41,7 @@ export class UserRepository implements IUserRepository {
     }
 
     if (user) {
-      const updatedUser = await this.prisma.users.update({
+      const updatedUser = await this.prisma.user.update({
         where: {
           id: user.id,
         },
@@ -58,7 +58,7 @@ export class UserRepository implements IUserRepository {
       return UserMapper.toDomain(updatedUser);
     }
 
-    const createdUser = await this.prisma.users.create({
+    const createdUser = await this.prisma.user.create({
       data: {
         id: userId,
         email: profile.email,
@@ -73,13 +73,13 @@ export class UserRepository implements IUserRepository {
   }
 
   async getAllUsers(): Promise<UserModel[]> {
-    const users = await this.prisma.users.findMany();
+    const users = await this.prisma.user.findMany();
 
     return users.map((u) => UserMapper.toDomain(u));
   }
 
   async getUserById(userId: string): Promise<UserModel | null> {
-    const user = await this.prisma.users.findUnique({
+    const user = await this.prisma.user.findUnique({
       where: {
         id: userId,
       },
@@ -89,7 +89,7 @@ export class UserRepository implements IUserRepository {
   }
 
   async getUserByEmail(email: string): Promise<UserModel | null> {
-    const user = await this.prisma.users.findUnique({
+    const user = await this.prisma.user.findUnique({
       where: {
         email,
       },
@@ -99,7 +99,7 @@ export class UserRepository implements IUserRepository {
   }
 
   async createUser(userData: UserModel): Promise<UserModel> {
-    const createdUser = await this.prisma.users.create({
+    const createdUser = await this.prisma.user.create({
       data: {
         id: userData.id,
         username: userData.username,
@@ -118,7 +118,7 @@ export class UserRepository implements IUserRepository {
     userId: string,
     updateData: Partial<UserModel>,
   ): Promise<UserModel> {
-    const updatedUser = await this.prisma.users.update({
+    const updatedUser = await this.prisma.user.update({
       where: {
         id: userId,
       },
@@ -136,7 +136,7 @@ export class UserRepository implements IUserRepository {
   }
 
   async deleteUser(userId: string): Promise<void> {
-    await this.prisma.users.delete({
+    await this.prisma.user.delete({
       where: {
         id: userId,
       },

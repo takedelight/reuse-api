@@ -2,11 +2,11 @@ import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { S3StorageService } from 'src/infrastructure/storage/s3-storage.service';
 import { UserService } from '../app/user.service';
-import { UserModel } from '../domain/user.model';
 import {
   IUserRepository,
   USER_REPOSITORY_TOKEN,
-} from '../domain/user.repository.interface';
+} from '../domain/interfaces/user.repository.interface';
+import { UserModel } from '../domain/models/user.model';
 import { InMemoryUserRepository } from '../infrastructure/repository/in-memory.user.repository';
 
 describe('UserService', () => {
