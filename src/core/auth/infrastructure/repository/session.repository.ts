@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/infrastructure/database/prisma.service';
 import { ISessionRepository } from '../../domain/interfaces/session.repository.interface';
@@ -8,6 +12,19 @@ import { SessionMapper } from '../mapper/session.mapper';
 @Injectable()
 export class SessionRepository implements ISessionRepository {
   constructor(private readonly prisma: PrismaService) {}
+  async getById(sessionId: string): Promise<SessionModel | null> {
+    const session = await this.prisma.session.findUnique({
+      where: {
+        id: sessionId,
+      },
+    });
+
+    if (!session) {
+      throw new NotFoundException('SESSION.NOT_FOUND');
+    }
+
+    return SessionMapper.toDomain(session);
+  }
 
   async createSession(session: SessionModel): Promise<SessionModel> {
     const data = SessionMapper.toPersistence(session);

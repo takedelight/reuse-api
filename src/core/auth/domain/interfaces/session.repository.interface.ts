@@ -7,6 +7,8 @@ export interface ISessionRepository {
 
   createSession(session: SessionModel): Promise<SessionModel>;
 
+  getById(sessionId: string): Promise<SessionModel | null>;
+
   deleteSession(sessionId: string): Promise<void>;
 
   deleteByUserIdExceptCurrent(

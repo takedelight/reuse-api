@@ -13,8 +13,20 @@ import { AuthController } from './presentation/auth.controller';
 import { OAuthController } from './presentation/oauth.controller';
 import { SessionController } from './presentation/session.controller';
 
+import { ConfigService } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
+import { JwtStrategy } from './infrastructure/strategy/jwt.strategy';
+
 @Module({
-  imports: [UserModule],
+  imports: [
+    UserModule,
+    JwtModule.registerAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.getOrThrow('JWT_ACCESS_SECRET'),
+      }),
+    }),
+  ],
   controllers: [AuthController, OAuthController, SessionController],
   providers: [
     AuthService,
@@ -22,6 +34,7 @@ import { SessionController } from './presentation/session.controller';
     GithubStrategy,
     SessionService,
     GoogleStrategy,
+    JwtStrategy,
     {
       provide: SESSION_REPOSITORY_TOKEN,
       useClass: SessionRepository,
@@ -31,6 +44,11 @@ import { SessionController } from './presentation/session.controller';
       useClass: UserAgentParserRepository,
     },
   ],
-  exports: [SESSION_REPOSITORY_TOKEN, USER_AGENT_PARSER_TOKEN],
+  exports: [
+    SESSION_REPOSITORY_TOKEN,
+    USER_AGENT_PARSER_TOKEN,
+    JwtStrategy,
+    JwtModule,
+  ],
 })
 export class AuthModule {}

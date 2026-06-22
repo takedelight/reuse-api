@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 
 import { AppModule } from 'src/app.module';
@@ -19,11 +20,7 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('Reuse API')
     .setVersion('1.0')
-    .addCookieAuth(configService.getOrThrow<string>('SESSION_NAME'), {
-      type: 'apiKey',
-      in: 'cookie',
-    })
-    .addSecurityRequirements('cookie-auth')
+
     .build();
 
   app.useGlobalPipes(
@@ -33,6 +30,8 @@ async function bootstrap() {
       transform: true,
     }),
   );
+
+  app.use(cookieParser());
 
   app.use(helmet());
 

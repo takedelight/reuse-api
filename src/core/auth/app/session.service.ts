@@ -10,4 +10,12 @@ export class SessionService {
     @Inject(SESSION_REPOSITORY_TOKEN)
     private readonly sessionRepository: ISessionRepository,
   ) {}
+
+  async getById(sessionId: string) {
+    return await this.sessionRepository.getById(sessionId);
+  }
+
+  async deleteById(sessionId: string) {
+    return await this.sessionRepository.deleteSession(sessionId);
+  }
 }
