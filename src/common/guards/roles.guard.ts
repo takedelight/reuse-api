@@ -6,7 +6,8 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { type Request } from 'express';
-import { UserRole } from 'src/core/user/domain/user.model';
+import { JwtPayload } from 'src/core/auth/infrastructure/types/jwt-payload.type'; // Імпортуємо твій тип payload
+import { UserRole } from 'src/core/user/domain/models/user.model';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 import { ROLES_KEY } from '../decorators/roles.decorator';
 
@@ -34,14 +35,13 @@ export class RolesGuard implements CanActivate {
     }
 
     const request = context.switchToHttp().getRequest<Request>();
-    const session = request.session;
 
-    const userRole = session?.role as UserRole;
+    const user = request.user as JwtPayload;
+
+    const userRole = user?.role;
 
     if (!userRole || !requiredRoles.includes(userRole)) {
-      throw new ForbiddenException(
-        'У вас немає прав для виконання цієї операції',
-      );
+      throw new ForbiddenException('AUTH.FORBIDDEN_RESOURCE');
     }
 
     return true;

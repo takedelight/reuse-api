@@ -1,30 +1,54 @@
 import { Module } from '@nestjs/common';
-import { APP_GUARD } from '@nestjs/core';
-import { AuthGuard } from 'src/common/guards/auth.guard';
-import { RolesGuard } from 'src/common/guards/roles.guard';
-import { SessionModule } from '../session/session.module';
+import { PrismaService } from 'src/infrastructure/database/prisma.service';
 import { UserModule } from '../user/user.module';
-import { AuthController } from './auth.controller';
-import { AuthService } from './auth.service';
-import { OAuthController } from './oauth.controller';
+import { AuthService } from './app/auth.service';
+import { SessionService } from './app/session.service';
+import { SESSION_REPOSITORY_TOKEN } from './domain/interfaces/session.repository.interface';
+import { USER_AGENT_PARSER_TOKEN } from './domain/interfaces/ua-parser.interface';
+import { SessionRepository } from './infrastructure/repository/session.repository';
+import { UserAgentParserRepository } from './infrastructure/repository/ua-parser.repository';
 import { GithubStrategy } from './infrastructure/strategy/github.strategy';
 import { GoogleStrategy } from './infrastructure/strategy/google.strategy';
+import { AuthController } from './presentation/auth.controller';
+import { OAuthController } from './presentation/oauth.controller';
+import { SessionController } from './presentation/session.controller';
+
+import { ConfigService } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
+import { JwtStrategy } from './infrastructure/strategy/jwt.strategy';
 
 @Module({
-  imports: [UserModule, SessionModule],
-  controllers: [AuthController, OAuthController],
+  imports: [
+    UserModule,
+    JwtModule.registerAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.getOrThrow('JWT_ACCESS_SECRET'),
+      }),
+    }),
+  ],
+  controllers: [AuthController, OAuthController, SessionController],
   providers: [
     AuthService,
-    {
-      provide: APP_GUARD,
-      useClass: AuthGuard,
-    },
-    {
-      provide: APP_GUARD,
-      useClass: RolesGuard,
-    },
+    PrismaService,
     GithubStrategy,
+    SessionService,
     GoogleStrategy,
+    JwtStrategy,
+    {
+      provide: SESSION_REPOSITORY_TOKEN,
+      useClass: SessionRepository,
+    },
+    {
+      provide: USER_AGENT_PARSER_TOKEN,
+      useClass: UserAgentParserRepository,
+    },
+  ],
+  exports: [
+    SESSION_REPOSITORY_TOKEN,
+    USER_AGENT_PARSER_TOKEN,
+    JwtStrategy,
+    JwtModule,
   ],
 })
 export class AuthModule {}

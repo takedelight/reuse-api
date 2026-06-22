@@ -1,4 +1,4 @@
-import { UserModel } from '../../user/domain/user.model';
+import { UserModel } from '../../user/domain/models/user.model';
 
 export class PostModel {
   private readonly _id: string;

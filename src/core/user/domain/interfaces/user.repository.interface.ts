@@ -1,5 +1,5 @@
 import { type OAuthProfileDto } from 'src/core/auth/dto/oauth-response.dto';
-import { type UserModel } from './user.model';
+import { type UserModel } from '../models/user.model';
 
 export const USER_REPOSITORY_TOKEN = Symbol('IUserRepository');
 

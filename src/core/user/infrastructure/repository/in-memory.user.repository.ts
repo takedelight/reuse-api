@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { OAuthProfileDto } from 'src/core/auth/dto/oauth-response.dto';
-import { UserModel } from '../../domain/user.model';
-import { IUserRepository } from '../../domain/user.repository.interface';
+import { IUserRepository } from '../../domain/interfaces/user.repository.interface';
+import { UserModel } from '../../domain/models/user.model';
 import { UserMapper } from '../mapper/user.mapper';
 
 @Injectable()

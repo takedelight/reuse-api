@@ -7,19 +7,24 @@ datasource db {
 }
 
 model Session {
-  id        String   @id @unique
-  sid       String   @unique
-  data      String
-  expiresAt DateTime
+  id          String   @id 
+  token_hash       String   @unique
 
-  users   Users?  @relation(fields: [usersId], references: [id], onDelete: Cascade)
-  usersId String? @map("users_id")
+  ipAddress   String?  @map("ip_address")
+  userAgent  String?  @map("user_agent")
+  device     String?
 
-  @@index([expiresAt])
+  user   User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @map("user_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  expiresAt DateTime @map("expires_at")
+
+  @@index([token_hash])
   @@map("sessions")
 }
 
-model Users {
+model User {
   id        String    @id @unique
   username  String
   avatarUrl String?   @map("avatar_url")
@@ -49,8 +54,8 @@ model Post {
   content     String
   isPublished Boolean @default(false) @map("is_published")
 
-  user   Users?  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId String? @map("users_id")
+  user   User?  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String? @map("user_id")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")

@@ -5,9 +5,3 @@ export interface ISessionCookie {
   httpOnly: boolean;
   path: string;
 }
-
-export interface IParsedSession {
-  cookie: ISessionCookie;
-  userId: string;
-  userAgent: string;
-}
