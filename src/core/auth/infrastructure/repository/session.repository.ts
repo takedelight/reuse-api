@@ -1,17 +1,37 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/infrastructure/database/prisma.service';
-import { SessionModel } from '../../domain/session.model';
-import { ISessionRepository } from '../../domain/session.repository.interface';
+import { ISessionRepository } from '../../domain/interfaces/session.repository.interface';
+import { SessionModel } from '../../domain/model/session.model';
 import { SessionMapper } from '../mapper/session.mapper';
 
 @Injectable()
 export class SessionRepository implements ISessionRepository {
   constructor(private readonly prisma: PrismaService) {}
 
+  async createSession(session: SessionModel): Promise<SessionModel> {
+    const data = SessionMapper.toPersistence(session);
+
+    try {
+      const session = await this.prisma.session.create({ data });
+
+      return SessionMapper.toDomain(session);
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw new InternalServerErrorException('SESSION.ALREADY_EXISTS');
+      }
+
+      throw error;
+    }
+  }
+
   async getAllUserSessions(userId: string): Promise<SessionModel[]> {
     const sessions = await this.prisma.session.findMany({
       where: {
-        users: {
+        user: {
           id: userId,
         },
       },
@@ -34,21 +54,10 @@ export class SessionRepository implements ISessionRepository {
   ): Promise<void> {
     await this.prisma.session.deleteMany({
       where: {
-        users: {
+        user: {
           id: userId,
         },
         id: { not: currentSessionId },
-      },
-    });
-  }
-
-  async linkSessionToUser(sid: string, userId: string): Promise<void> {
-    await this.prisma.session.updateMany({
-      where: {
-        sid,
-      },
-      data: {
-        usersId: userId,
       },
     });
   }
