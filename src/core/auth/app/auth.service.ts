@@ -217,7 +217,13 @@ export class AuthService {
   }
 
   async getUserProfile(userId: string) {
-    return await this.userRepository.getUserById(userId);
+    const user = await this.userRepository.getUserById(userId);
+
+    if (!user) {
+      throw new NotFoundException('errors.server.user_not_found');
+    }
+
+    return UserMapper.toResponse(user);
   }
 
   private hashToken(token: string): string {
