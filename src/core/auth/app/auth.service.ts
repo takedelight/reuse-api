@@ -216,6 +216,10 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
+  async getUserProfile(userId: string) {
+    return await this.userRepository.getUserById(userId);
+  }
+
   private hashToken(token: string): string {
     return crypto.createHash('sha256').update(token).digest('hex');
   }
