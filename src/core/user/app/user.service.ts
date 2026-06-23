@@ -96,17 +96,19 @@ export class UserService {
   async confirmAvatarUpload(userId: string, key: string) {
     const avatarUrl = await this.storageService.getDownloadUrl(key);
 
-    await this.userRepository.updateUser(userId, { avatarUrl });
+    const updatedUser = await this.userRepository.updateUser(userId, {
+      avatarUrl,
+    });
+
+    return UserMapper.toResponse(updatedUser);
   }
 
   async deleteAvatar(userId: string) {
-    const user = await this.userRepository.getUserById(userId);
+    const updatedUser = await this.userRepository.updateUser(userId, {
+      avatarUrl: null,
+    });
 
-    if (!user) {
-      throw new NotFoundException(`Користувач з id ${userId} не існує`);
-    }
-
-    await this.userRepository.updateUser(userId, { avatarUrl: null });
+    return UserMapper.toResponse(updatedUser);
   }
 
   async deleteUser(userId: string): Promise<void> {
