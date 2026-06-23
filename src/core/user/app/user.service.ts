@@ -1,4 +1,10 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { hash } from 'argon2';
 import { S3StorageService } from 'src/infrastructure/storage/s3-storage.service';
 import {
@@ -48,26 +54,36 @@ export class UserService {
     userId: string,
     dto: UpdateUserDto,
   ): Promise<UserResponseDto> {
-    const existingUser = await this.userRepository.getUserById(userId);
-    if (!existingUser) {
-      throw new NotFoundException(`Користувач з id ${userId} не існує`);
+    try {
+      const hashedPassword = dto.password
+        ? await hash(dto.password)
+        : undefined;
+
+      const updatePayload: Partial<UserModel> = {
+        ...dto,
+        ...(hashedPassword && { password: hashedPassword }),
+      };
+
+      const updatedUser = await this.userRepository.updateUser(
+        userId,
+        updatePayload,
+      );
+
+      return UserMapper.toResponse(updatedUser);
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2025') {
+          throw new NotFoundException(`errors.server.user_not_found`);
+        }
+
+        if (error.code === 'P2002') {
+          throw new ConflictException(`errors.server.user_already_exists`);
+        }
+      }
+
+      throw error;
     }
-
-    const hashedPassword = dto.password ? await hash(dto.password) : undefined;
-
-    const updatePayload: Partial<UserModel> = {
-      ...dto,
-      ...(hashedPassword && { password: hashedPassword }),
-    };
-
-    const updatedUser = await this.userRepository.updateUser(
-      userId,
-      updatePayload,
-    );
-
-    return UserMapper.toResponse(updatedUser);
   }
-
   async generateAvatarUploadUrl(
     userId: string,
     fileName: string,

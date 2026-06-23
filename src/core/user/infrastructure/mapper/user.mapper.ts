@@ -9,6 +9,7 @@ export class UserMapper {
       id: user.id,
       username: user.username,
       email: user.email,
+      bio: user.bio,
       avatarUrl: user.avatarUrl,
       createdAt: user.createdAt,
     };

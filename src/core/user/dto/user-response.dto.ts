@@ -13,6 +13,8 @@ export class UserResponseDto {
   @ApiProperty({ type: String, format: 'email' })
   email: string;
 
+  bio: string | null;
+
   @ApiProperty({ type: Date, format: 'date-time' })
   createdAt: Date;
 }
