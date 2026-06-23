@@ -11,11 +11,13 @@ import {
   Res,
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
+import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { Public } from 'src/common/decorators/public.decorator';
 import { AuthService } from '../app/auth.service';
 import { LoginDto } from '../dto/login.dto';
 import { RegisterDto } from '../dto/register.dto';
 import { REFRESH_TOKEN_EXPIRY_MS } from '../infrastructure/constants/const';
+import type { JwtPayload } from '../infrastructure/types/jwt-payload.type';
 
 @Controller('auth')
 export class AuthController {
@@ -83,12 +85,8 @@ export class AuthController {
 
   @Get('profile')
   @HttpCode(HttpStatus.OK)
-  async getProfile(@Req() req: Request) {
-    const userId = req.user?.sub;
-
-    console.log(req.user);
-
-    return await this.authService.getUserProfile(userId ?? '');
+  async getProfile(@CurrentUser() user: JwtPayload) {
+    return await this.authService.getUserProfile(user.sub);
   }
 
   private setAuthCookies(
