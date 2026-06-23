@@ -118,21 +118,29 @@ export class UserRepository implements IUserRepository {
     userId: string,
     updateData: Partial<UserModel>,
   ): Promise<UserModel> {
-    const updatedUser = await this.prisma.user.update({
-      where: {
-        id: userId,
-      },
-      data: {
-        username: updateData.username,
-        email: updateData.email,
-        bio: updateData.bio,
-        password: updateData.password,
-        avatarUrl: updateData.avatarUrl,
-        role: updateData.role,
-      },
-    });
+    try {
+      const updatedUser = await this.prisma.user.update({
+        where: { id: userId },
+        data: {
+          username: updateData.username,
+          email: updateData.email,
+          bio: updateData.bio,
+          password: updateData.password,
+          avatarUrl: updateData.avatarUrl,
+          role: updateData.role,
+        },
+      });
 
-    return UserMapper.toDomain(updatedUser);
+      return UserMapper.toDomain(updatedUser);
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw error;
+      }
+      throw error;
+    }
   }
 
   async deleteUser(userId: string): Promise<void> {
