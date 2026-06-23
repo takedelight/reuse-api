@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { User } from '@prisma/client';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { Prisma, User } from '@prisma/client';
 import { OAuthProfileDto } from 'src/core/auth/dto/oauth-response.dto';
 import { PrismaService } from 'src/infrastructure/database/prisma.service';
 import { IUserRepository } from '../../domain/interfaces/user.repository.interface';
@@ -136,10 +136,20 @@ export class UserRepository implements IUserRepository {
   }
 
   async deleteUser(userId: string): Promise<void> {
-    await this.prisma.user.delete({
-      where: {
-        id: userId,
-      },
-    });
+    try {
+      await this.prisma.user.delete({
+        where: {
+          id: userId,
+        },
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new BadRequestException('errors.server.delete_profile.error');
+      }
+      throw error;
+    }
   }
 }

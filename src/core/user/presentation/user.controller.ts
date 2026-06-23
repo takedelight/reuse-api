@@ -1,4 +1,12 @@
-import { Body, Controller, Delete, Get, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Patch,
+  Post,
+  Res,
+} from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBody,
@@ -9,9 +17,12 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
+import type { JwtPayload } from 'src/core/auth/infrastructure/types/jwt-payload.type';
 import { UserService } from '../app/user.service';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { UserResponseDto } from '../dto/user-response.dto';
+
+import type { Response } from 'express';
 
 @Controller('user')
 @ApiTags('Користувач')
@@ -43,8 +54,8 @@ export class UserController {
     description: 'Сесія застаріла або ви не авторизовані',
   })
   @ApiInternalServerErrorResponse({ description: 'Помилка на стороні сервера' })
-  getUserById(@CurrentUser() userId: string): Promise<UserResponseDto> {
-    return this.userService.getUserById(userId);
+  getUserById(@CurrentUser() user: JwtPayload): Promise<UserResponseDto> {
+    return this.userService.getUserById(user.sub);
   }
 
   @Patch()
@@ -68,19 +79,19 @@ export class UserController {
     description: 'Сесія застаріла або ви не авторизовані',
   })
   updateUser(
-    @CurrentUser() userId: string,
+    @CurrentUser() user: JwtPayload,
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<UserResponseDto> {
-    return this.userService.updateUser(userId, updateUserDto);
+    return this.userService.updateUser(user.sub, updateUserDto);
   }
 
   @Post('upload-url')
   async getUploadUrl(
-    @CurrentUser() userId: string,
+    @CurrentUser() user: JwtPayload,
     @Body() dto: { fileName: string; contentType: string },
   ) {
     return this.userService.generateAvatarUploadUrl(
-      userId,
+      user.sub,
       dto.fileName,
       dto.contentType,
     );
@@ -88,14 +99,29 @@ export class UserController {
 
   @Post('confirm')
   async confirmUpload(
-    @CurrentUser() userId: string,
+    @CurrentUser() user: JwtPayload,
     @Body() dto: { key: string },
   ) {
-    return this.userService.confirmAvatarUpload(userId, dto.key);
+    return this.userService.confirmAvatarUpload(user.sub, dto.key);
   }
 
   @Delete('avatar')
-  async deleteAvatar(@CurrentUser() userId: string) {
-    return this.userService.deleteAvatar(userId);
+  async deleteAvatar(@CurrentUser() user: JwtPayload) {
+    return this.userService.deleteAvatar(user.sub);
+  }
+
+  @Delete('delete')
+  async deleteProfile(
+    @CurrentUser() user: JwtPayload,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    await this.userService.deleteUser(user.sub);
+
+    this.clearAuthCookies(res);
+  }
+
+  private clearAuthCookies(res: Response): void {
+    res.clearCookie('accessToken', { path: '/' });
+    res.clearCookie('refreshToken', { path: '/' });
   }
 }
