@@ -8,21 +8,14 @@ export class UserModel {
     private readonly _username: string,
     private readonly _bio: string | null,
     private readonly _email: string,
-    password: string | null,
-    private readonly _avatarUrl: string | null,
+    private _password: string | null,
+    private _avatarUrl: string | null,
     private readonly _role: UserRole,
     private readonly _githubId: string | null,
     private readonly _googleId: string | null,
     private readonly _createdAt: Date,
   ) {
     this._id = id;
-    this._password = password;
-  }
-
-  private _password: string | null;
-
-  get password(): string | null {
-    return this._password;
   }
 
   get id(): string {
@@ -33,37 +26,51 @@ export class UserModel {
     return this._username;
   }
 
+  get bio(): string | null {
+    return this._bio;
+  }
+
   get email(): string {
     return this._email;
   }
 
-  get role(): UserRole {
-    return this._role;
-  }
-
-  get createdAt(): Date {
-    return this._createdAt;
+  get password(): string | null {
+    return this._password;
   }
 
   get avatarUrl(): string | null {
     return this._avatarUrl;
   }
 
-  get bio(): string | null {
-    return this._bio;
+  get role(): UserRole {
+    return this._role;
+  }
+
+  get googleId(): string | null {
+    return this._googleId;
+  }
+
+  get githubId(): string | null {
+    return this._githubId;
+  }
+
+  get createdAt(): Date {
+    return this._createdAt;
   }
 
   get isAdmin(): boolean {
     return this._role === 'admin';
   }
-  get googleId(): string | null {
-    return this._googleId;
-  }
-  get githubId(): string | null {
-    return this._githubId;
-  }
 
   changePassword(hashedPassword: string): void {
     this._password = hashedPassword;
+  }
+
+  removeAvatar(): void {
+    this._avatarUrl = null;
+  }
+
+  updateAvatar(newAvatarUrl: string): void {
+    this._avatarUrl = newAvatarUrl;
   }
 }
