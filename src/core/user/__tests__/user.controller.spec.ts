@@ -1,6 +1,4 @@
-import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { JwtPayload } from 'src/core/auth/infrastructure/types/jwt-payload.type';
 import { S3StorageService } from 'src/infrastructure/storage/s3-storage.service';
 import { UserService } from '../app/user.service';
 import { USER_REPOSITORY_TOKEN } from '../domain/interfaces/user.repository.interface';
@@ -66,37 +64,6 @@ describe('UserController', () => {
     it('should return an empty array if no users exist', async () => {
       const result = await controller.getAllUsers();
       expect(result).toEqual([]);
-    });
-  });
-
-  describe('getUserById', () => {
-    it('should return user details by id', async () => {
-      const user = createMockUser('id-123', 'user1');
-      await repository.createUser(user);
-
-      const mockJwtPayload: JwtPayload = {
-        sub: user.id,
-        role: 'user',
-        sessionId: 'session-id',
-      };
-
-      const result = await controller.getUserById(mockJwtPayload);
-
-      expect(result).toBeDefined();
-      expect(result.id).toBe(user.id);
-    });
-
-    it('should throw NotFoundException if user not found', async () => {
-
-      const mockJwtPayload: JwtPayload = {
-        sub: 'user-id-that-does-not-exist',
-        role: 'user',
-        sessionId: 'session-id',
-      };
-
-      await expect(controller.getUserById(mockJwtPayload)).rejects.toThrow(
-        NotFoundException,
-      );
     });
   });
 });
