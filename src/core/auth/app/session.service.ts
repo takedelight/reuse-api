@@ -3,6 +3,7 @@ import {
   type ISessionRepository,
   SESSION_REPOSITORY_TOKEN,
 } from '../domain/interfaces/session.repository.interface';
+import { SessionMapper } from '../infrastructure/mapper/session.mapper';
 
 @Injectable()
 export class SessionService {
@@ -20,6 +21,8 @@ export class SessionService {
   }
 
   async getAllUserSessions(userId: string) {
-    return await this.sessionRepository.getAllUserSessions(userId);
+    const sessions = await this.sessionRepository.getAllUserSessions(userId);
+
+    return sessions.map((s) => SessionMapper.toResponse(s));
   }
 }
