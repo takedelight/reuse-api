@@ -18,4 +18,8 @@ export class SessionService {
   async deleteById(sessionId: string) {
     return await this.sessionRepository.deleteSession(sessionId);
   }
+
+  async getAllUserSessions(userId: string) {
+    return await this.sessionRepository.getAllUserSessions(userId);
+  }
 }
