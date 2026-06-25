@@ -20,9 +20,23 @@ export class SessionService {
     return await this.sessionRepository.deleteSession(sessionId);
   }
 
-  async getAllUserSessions(userId: string) {
+  async deleteExceptCurrent(userId: string, currentSessionId: string) {
+    return await this.sessionRepository.deleteByUserIdExceptCurrent(
+      userId,
+      currentSessionId,
+    );
+  }
+
+  async getAllUserSessions(userId: string, currentSessionId: string) {
     const sessions = await this.sessionRepository.getAllUserSessions(userId);
 
-    return sessions.map((s) => SessionMapper.toResponse(s));
+    return sessions.map((s) => {
+      const session = SessionMapper.toResponse(s);
+
+      return {
+        ...session,
+        isCurrent: session.id === currentSessionId,
+      };
+    });
   }
 }
