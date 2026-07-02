@@ -1,17 +1,19 @@
 import {
+  BadRequestException,
   ConflictException,
   Inject,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { hash } from 'argon2';
+import { hash, verify } from 'argon2';
 import { S3StorageService } from 'src/infrastructure/storage/s3-storage.service';
 import {
   type IUserRepository,
   USER_REPOSITORY_TOKEN,
 } from '../domain/interfaces/user.repository.interface';
-import { UserModel } from '../domain/models/user.model';
+import { UpdatePasswordDto } from '../dto/update-password.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { UserResponseDto } from '../dto/user-response.dto';
 import { UserMapper } from '../infrastructure/mapper/user.mapper';
@@ -55,19 +57,7 @@ export class UserService {
     dto: UpdateUserDto,
   ): Promise<UserResponseDto> {
     try {
-      const hashedPassword = dto.password
-        ? await hash(dto.password)
-        : undefined;
-
-      const updatePayload: Partial<UserModel> = {
-        ...dto,
-        ...(hashedPassword && { password: hashedPassword }),
-      };
-
-      const updatedUser = await this.userRepository.updateUser(
-        userId,
-        updatePayload,
-      );
+      const updatedUser = await this.userRepository.updateUser(userId, dto);
 
       return UserMapper.toResponse(updatedUser);
     } catch (error) {
@@ -109,6 +99,38 @@ export class UserService {
     });
 
     return UserMapper.toResponse(updatedUser);
+  }
+
+  async updatePassword(userId: string, dto: UpdatePasswordDto) {
+    const user = await this.userRepository.getUserById(userId);
+
+    if (!user) {
+      throw new NotFoundException(`errors.server.user_not_found`);
+    }
+
+    if (!user.password) {
+      user.changePassword(await hash(dto.newPassword));
+    } else {
+      if (!dto.currentPassword) {
+        throw new BadRequestException(
+          'errors.server.current_password_required',
+        );
+      }
+
+      const isPasswordValid = await verify(user.password, dto.currentPassword);
+
+      if (!isPasswordValid) {
+        throw new UnauthorizedException(
+          'errors.server.invalid_current_password',
+        );
+      }
+
+      user.changePassword(await hash(dto.newPassword));
+    }
+
+    return await this.userRepository.updateUser(userId, {
+      password: user.password,
+    });
   }
 
   async deleteUser(userId: string): Promise<void> {
