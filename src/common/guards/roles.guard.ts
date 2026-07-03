@@ -6,10 +6,10 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { type Request } from 'express';
-import { JwtPayload } from 'src/core/auth/infrastructure/types/jwt-payload.type'; // Імпортуємо твій тип payload
-import { UserRole } from 'src/core/user/domain/models/user.model';
+import { JwtPayload } from 'src/core/auth/infrastructure/types/jwt-payload.type';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 import { ROLES_KEY } from '../decorators/roles.decorator';
+import { UserRoles } from '@prisma/client';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -25,7 +25,7 @@ export class RolesGuard implements CanActivate {
       return true;
     }
 
-    const requiredRoles = this.reflector.getAllAndOverride<UserRole[]>(
+    const requiredRoles = this.reflector.getAllAndOverride<UserRoles[]>(
       ROLES_KEY,
       [context.getHandler(), context.getClass()],
     );

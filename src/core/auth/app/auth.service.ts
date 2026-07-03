@@ -13,7 +13,6 @@ import {
   type IUserRepository,
   USER_REPOSITORY_TOKEN,
 } from 'src/core/user/domain/interfaces/user.repository.interface';
-import { UserRole } from 'src/core/user/domain/models/user.model';
 import { UserMapper } from 'src/core/user/infrastructure/mapper/user.mapper';
 import { v7 as uuidv7 } from 'uuid';
 import {
@@ -29,6 +28,7 @@ import { LoginDto } from '../dto/login.dto';
 import { OAuthProfileDto } from '../dto/oauth-response.dto';
 import { RegisterDto } from '../dto/register.dto';
 import { REFRESH_TOKEN_EXPIRY_MS } from '../infrastructure/constants/const';
+import { UserRoles } from '@prisma/client';
 
 export interface AuthTokens {
   accessToken: string;
@@ -157,7 +157,7 @@ export class AuthService {
 
   private async createSessionAndTokens(
     userId: string,
-    role: UserRole,
+    role: UserRoles,
     userAgents: string,
     ip: string | null,
   ): Promise<AuthTokens> {
@@ -195,7 +195,7 @@ export class AuthService {
   private async generateToken(
     userId: string,
     sessionId: string,
-    role: UserRole,
+    role: UserRoles,
   ): Promise<AuthTokens> {
     const accessToken = await this.jwtService.signAsync(
       { sub: userId, sessionId, role },

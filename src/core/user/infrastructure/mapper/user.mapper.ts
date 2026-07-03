@@ -10,6 +10,7 @@ export class UserMapper {
       username: user.username,
       email: user.email,
       bio: user.bio,
+      role: user.role,
       avatarUrl: user.avatarUrl,
       createdAt: user.createdAt,
     };
