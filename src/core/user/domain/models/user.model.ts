@@ -1,4 +1,4 @@
-export type UserRole = 'admin' | 'user';
+import { UserRoles } from '@prisma/client';
 
 export class UserModel {
   private readonly _id: string;
@@ -10,7 +10,7 @@ export class UserModel {
     private readonly _email: string,
     private _password: string | null,
     private _avatarUrl: string | null,
-    private readonly _role: UserRole,
+    private readonly _role: UserRoles,
     private readonly _githubId: string | null,
     private readonly _googleId: string | null,
     private readonly _createdAt: Date,
@@ -42,7 +42,7 @@ export class UserModel {
     return this._avatarUrl;
   }
 
-  get role(): UserRole {
+  get role(): UserRoles {
     return this._role;
   }
 

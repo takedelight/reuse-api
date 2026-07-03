@@ -1,9 +1,9 @@
-import { type UserRole } from 'src/core/user/domain/models/user.model';
+import { UserRoles } from '@prisma/client';
 
 export interface JwtPayload {
   sub: string;
 
-  role: UserRole;
+  role: UserRoles;
 
   sessionId: string;
 }
